@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Campex</title>
+<meta charset="utf-8">
+<meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui" />
+<style> @-ms-viewport { width: device-width; } </style>
+<link rel="stylesheet" href="vendor/reset.min.css">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+
+</head>
+<body class="multiple-scenes view-control-buttons">
+
+<!-- NORMAL VIEW -->
+<div id="pano"></div>
+
+<!-- VR VIEW (hidden initially) -->
+<div id="vrContainer" style="display:none;">
+  <div id="leftView"></div>
+  <div id="rightView"></div>
+</div>
+
+
+
+<div id="sceneList">
+  <div class="scenes">
+
+    <div class="scene-card" data-id="0-entrance-gate-b" style="background-image:url('thumbs/gateb.jpg')">
+      <div class="scene-title">Gate B</div>
+    </div>
+
+    <div class="scene-card" data-id="1-ground-center" style="background-image:url('thumbs/ground.webp')">
+      <div class="scene-title">Ground</div>
+    </div>
+
+    <!-- <div class="scene-card" data-id="2-ground-greengym" style="background-image:url('thumbs/greengym.jpg')">
+      <div class="scene-title">Greengym</div>
+    </div> -->
+
+    <div class="scene-card" data-id="3-groung-basketball" style="background-image:url('thumbs/basketball.webp')">
+      <div class="scene-title">Basketball Court</div>
+    </div>
+
+    <div class="scene-card" data-id="6-foursquare-entrance" style="background-image:url('thumbs/foursquare.jpg')">
+      <div class="scene-title">FourSquare</div>
+    </div>
+
+    <!-- <div class="scene-card" data-id="19-a-building--office-main" style="background-image:url('thumbs/admin-office.jpg')">
+      <div class="scene-title">Administrative Office</div>
+    </div> -->
+
+    <div class="scene-card" data-id="21-a-building-ground" style="background-image:url('thumbs/a-building.webp')">
+      <div class="scene-title">A Building</div>
+    </div>
+
+    <div class="scene-card" data-id="17-workshop-1" style="background-image:url('thumbs/workshop.png')">
+      <div class="scene-title">Workshop</div>
+    </div>
+
+    <div class="scene-card" data-id="15-canteen-1" style="background-image:url('thumbs/canteen.webp')">
+      <div class="scene-title">Canteen</div>
+    </div>
+
+    <div class="scene-card" data-id="29-a-building-1-floor-library" style="background-image:url('thumbs/library.jpg')">
+      <div class="scene-title">Central Library</div>
+    </div>
+
+    <div class="scene-card" data-id="34-gymkhana" style="background-image:url('thumbs/gym.png')">
+      <div class="scene-title">Gymkhana</div>
+    </div>
+
+    <div class="scene-card" data-id="83-b-g0" style="background-image:url('thumbs/b-building.jpg')">
+      <div class="scene-title">B Building</div>
+    </div>
+
+    <div class="scene-card" data-id="35-c-g0" style="background-image:url('thumbs/c-building.png')">
+      <div class="scene-title">C Building</div>
+    </div>
+
+    <div class="scene-card" data-id="42-c-seminal-hall1" style="background-image:url('thumbs/seminarhall.jpeg')">
+      <div class="scene-title">C Seminar Hall</div>
+    </div>
+
+     <div class="scene-card" data-id="94-mech-seminar-hall" style="background-image:url('thumbs/mech-seminar-hall.png')">
+      <div class="scene-title">Mechanical Seminar Hall</div>
+    </div>
+
+
+    
+
+  </div>
+</div>
+
+
+
+<div id="titleBar">
+  <h1 class="sceneName"></h1>
+</div>
+
+<a href="javascript:void(0)" id="autorotateToggle">
+  <img class="icon off" src="img/play.png">
+  <img class="icon on" src="img/pause.png">
+</a>
+
+<a href="javascript:void(0)" id="fullscreenToggle">
+  <img class="icon off" src="img/fullscreen.png">
+  <img class="icon on" src="img/windowed.png">
+</a>
+
+<a href="javascript:void(0)" id="sceneListToggle">
+  <img class="icon off" src="img/expand.png">
+  <img class="icon on" src="img/collapse.png">
+</a>
+
+<a href="javascript:void(0)" id="viewUp" class="viewControlButton viewControlButton-1">
+  <img class="icon" src="img/up.png">
+</a>
+<a href="javascript:void(0)" id="viewDown" class="viewControlButton viewControlButton-2">
+  <img class="icon" src="img/down.png">
+</a>
+<a href="javascript:void(0)" id="viewLeft" class="viewControlButton viewControlButton-3">
+  <img class="icon" src="img/left.png">
+</a>
+<a href="javascript:void(0)" id="viewRight" class="viewControlButton viewControlButton-4">
+  <img class="icon" src="img/right.png">
+</a>
+<a href="javascript:void(0)" id="viewIn" class="viewControlButton viewControlButton-5">
+  <img class="icon" src="img/plus.png">
+</a>
+<a href="javascript:void(0)" id="viewOut" class="viewControlButton viewControlButton-6">
+  <img class="icon" src="img/minus.png">
+</a>
+<a href="javascript:void(0)" id="guideToggle" class="viewControlButton viewControlButton-7">
+  <img class="icon" src="img/info.png" title="Visual Guide">
+</a>
+<a href="javascript:void(0)" id="mapButton" class="viewControlButton viewControlButton-8">
+  <img class="icon" src="img/map.png" title="Campus Map">
+</a>
+<a href="javascript:void(0)" id="vrButton" class="viewControlButton viewControlButton-9">
+  <img class="icon" src="img/vr.png" title="Enter VR">
+</a>
+
+<!-- Background Music Controls -->
+<div id="bg-music-control" style="
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-family: sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+  user-select: none;
+  z-index: 999;
+">
+  🔊 
+</div>
+
+<script>
+  // Create background music element
+  const bgMusic = new Audio("audio/bgMusic.mp3");
+  bgMusic.loop = true;
+  bgMusic.volume = 0.5;
+
+  // Autoplay workaround for Chrome (user interaction required sometimes)
+  document.addEventListener("click", () => {
+    if (bgMusic.paused) bgMusic.play().catch(() => {});
+  }, { once: true });
+
+  // Try autoplay when page loads (works in most browsers)
+  window.addEventListener("load", () => {
+    bgMusic.play().catch(() => {
+      console.log("Autoplay blocked until user interaction.");
+    });
+  });
+
+  // Toggle mute/unmute
+  const control = document.getElementById("bg-music-control");
+  control.addEventListener("click", () => {
+    if (bgMusic.muted) {
+      bgMusic.muted = false;
+      control.textContent = "🔊";
+    } else {
+      bgMusic.muted = true;
+      control.textContent = "🔈";
+    }
+  });
+</script>
+
+
+<!-- 💬 Popup for Guide Text -->
+<div id="guidePopup" style="
+  position: fixed;
+  top: 100px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  padding: 16px 22px;
+  border-radius: 12px;
+  max-width: 300px;
+  text-align: center;
+  font-family: 'Poppins', sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  display: none;
+  z-index: 999;
+"></div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     Campus Route Navigation — Selector Card
+════════════════════════════════════════════════════════ -->
+<div id="routeNavWrap">
+  <div id="routeNavCard">
+    <div class="rn-card-header">
+      <span class="rn-card-title">Campus Route</span>
+    </div>
+    <div id="routeCardBody" class="rn-body--collapsed">
+      <div class="rn-field">
+        <label class="rn-label" for="startSelect">From</label>
+        <select id="startSelect" class="rn-select">
+          <option value="">— Starting Point —</option>
+        </select>
+      </div>
+
+      <div class="rn-field">
+        <label class="rn-label" for="destSelect">To</label>
+        <select id="destSelect" class="rn-select">
+          <option value="">— Destination —</option>
+        </select>
+      </div>
+
+      <button id="startTourBtn" class="rn-btn-primary">▶ Start Tour</button>
+    </div>
+    <button id="routeCardToggle" title="Expand Campus Route" aria-label="Expand Campus Route">
+      <i class="ti ti-chevron-right rn-toggle-icon"></i>
+    </button>
+  </div>
+  <!-- Error tooltip floats below the pill -->
+  <p id="routeError" style="display:none;" class="rn-error"></p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     Route Progress Panel
+════════════════════════════════════════════════════════ -->
+<div id="routeProgressPanel" style="display:none;">
+  <div class="rpp-header">
+    <span class="rpp-title"> Route Progress</span>
+    <button id="clearRouteBtn" class="rpp-clear">✕ End Tour</button>
+  </div>
+
+  <div class="rpp-grid">
+    <div class="rpp-cell">
+      <div class="rpp-cell-label">Current</div>
+      <div id="rpCurrent" class="rpp-cell-value">—</div>
+    </div>
+    <div class="rpp-cell">
+      <div class="rpp-cell-label">Next Stop</div>
+      <div id="rpNext" class="rpp-cell-value">—</div>
+    </div>
+    <div class="rpp-cell">
+      <div class="rpp-cell-label">Destination</div>
+      <div id="rpDest" class="rpp-cell-value">—</div>
+    </div>
+  </div>
+
+  <div class="rpp-bar-wrap">
+    <div id="rpBar" class="rpp-bar-fill" style="width:0%"></div>
+  </div>
+  <div id="rpStepLabel" class="rpp-step-label">Step 1 of 1</div>
+
+  <div id="rpPath" class="rpp-path"></div>
+
+  <div id="rpArrived" class="rpp-arrived" style="display:none;">
+    🎉 You have arrived at your destination!
+  </div>
+</div>
+
+
+<script src="vendor/screenfull.min.js" ></script>
+<script src="vendor/bowser.min.js" ></script>
+<script src="vendor/marzipano.js" ></script>
+
+<script src="data.js"></script>
+<script src="routeData.js"></script>
+<script src="index.js"></script>
+<script src="routeNavigation.js"></script>
+
+<div id="reticleLeft" class="reticle">
+  <div class="crosshair"></div>
+  <svg class="progress-ring" width="32" height="32">
+    <circle class="progress-ring__circle" cx="16" cy="16" r="13" />
+  </svg>
+</div>
+
+<div id="reticleRight" class="reticle">
+  <div class="crosshair"></div>
+  <svg class="progress-ring" width="32" height="32">
+    <circle class="progress-ring__circle" cx="16" cy="16" r="13" />
+  </svg>
+</div>
+
+<!-- Map -->
+<div id="mapModal" style="
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.7);
+  z-index:9999;
+">
+
+  <div style="
+    width:80%;
+    height:80%;
+    background:#fff;
+    margin:5% auto;
+    border-radius:10px;
+    padding:10px;
+    position:relative;
+  ">
+
+    <span id="closeMap" style="
+      position:absolute;
+      right:15px;
+      top:10px;
+      font-size:24px;
+      color:#111;
+      cursor:pointer;
+    ">✖</span>
+
+    <div style="margin-bottom:8px;">
+      <button onclick="filterPlaces('all')">All</button>
+      <button onclick="filterPlaces('cafe')">Cafes</button>
+      <button onclick="filterPlaces('hostel')">Hostels</button>
+      <button onclick="filterPlaces('stationery')">Stationery</button>
+    </div>
+
+    <div id="map" style="height:90%;"></div>
+
+  </div>
+</div>
+<script>
+/* ================= SAFE MAP MODULE ================= */
+
+(function() {
+
+let map = null;
+let markers = [];
+
+const collegeCoords = [20.01491811770932, 73.76383800849092];
+
+const places = [
+  { name: "KBT Cafe", coords: [20.01548864804234, 73.76343532122627], category: "cafe" },
+  { name: "Chai Villa", coords: [20.017015007968148, 73.76148964327574], category: "cafe" },
+  { name: "Diploma college", coords: [20.01494324376624, 73.7655259201133], category: "college" },
+  { name: "Law college", coords: [20.01567814274949, 73.76188473533959], category: "college" },
+  { name: "ITI college", coords: [20.01495227391913, 73.76284791796611], category: "college" },
+  { name: "Jai Hind Bhavan", coords: [20.01559475361794, 73.76110505404625], category: "hostel" },
+  { name: "Girls Hostel", coords: [20.014628911041488, 73.76341644782599], category: "hostel" },
+  { name: "CPG BOYS Hostel", coords: [20.01199841285143, 73.76456174347065], category: "hostel" },
+  { name: "Archit Stationary & Xerox", coords: [20.013645233873323, 73.76171254396085], category: "stationery" },
+  { name: "Bahucharaji Copy Zone & Xerox", coords: [20.013157425130693, 73.76100639981583], category: "stationery" }
+];
+
+/* ================= ICONS ================= */
+
+const icons = {
+  cafe: L.icon({
+    iconUrl: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
+    iconSize: [32, 32]
+  }),
+  hostel: L.icon({
+    iconUrl: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+    iconSize: [32, 32]
+  }),
+  stationery: L.icon({
+    iconUrl: "https://maps.google.com/mapfiles/ms/icons/green-dot.png",
+    iconSize: [32, 32]
+  }),
+  college: L.icon({
+    iconUrl: "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png",
+    iconSize: [32, 32]
+  })
+};
+
+/* ================= INIT MAP ================= */
+
+function initMap() {
+  if (map) return;
+
+  map = L.map('map').setView(collegeCoords, 17);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap'
+  }).addTo(map);
+
+  L.marker(collegeCoords)
+    .addTo(map)
+    .bindPopup("College");
+
+/* ================= LEGEND ================= */
+
+  const legend = L.control({ position: "bottomright" });
+
+  legend.onAdd = function () {
+    const div = L.DomUtil.create("div");
+
+    div.style.background = "white";
+    div.style.padding = "10px";
+    div.style.borderRadius = "8px";
+    div.style.fontSize = "13px";
+    div.style.lineHeight = "18px";
+    div.style.color = "#000";   // ✅ IMPORTANT (text visible)
+    div.style.boxShadow = "0 0 6px rgba(0,0,0,0.3)";
+
+    div.innerHTML = `
+      <span style="color:#000;">🔴 Cafe</span><br>
+      <span style="color:#000;">🔵 Hostel</span><br>
+      <span style="color:#000;">🟢 Stationery</span><br>
+      <span style="color:#000;">🟡 College</span>
+    `;
+
+    return div;
+  };
+
+  legend.addTo(map);
+
+  loadMarkers();
+}
+
+/* ================= LOAD MARKERS ================= */
+
+function loadMarkers(filter = 'all') {
+
+  markers.forEach(m => map.removeLayer(m));
+  markers = [];
+
+  places.forEach(p => {
+
+    if (filter !== 'all' && p.category !== filter) return;
+
+    const m = L.marker(p.coords, {
+      icon: icons[p.category] || icons.cafe
+    })
+    .addTo(map)
+    .bindTooltip(`${p.name} (Click for directions)`, {
+      permanent: false,
+      direction: "top"
+    });
+
+    /* ✅ OPEN GOOGLE MAPS DIRECTIONS */
+    m.on("click", () => {
+      const url = `https://www.google.com/maps/dir/?api=1&destination=${p.coords[0]},${p.coords[1]}`;
+      window.open(url, "_blank");
+    });
+
+    markers.push(m);
+  });
+}
+/* ================= FILTER ================= */
+
+window.filterPlaces = function(category) {
+  loadMarkers(category);
+};
+
+/* ================= UI CONTROLS ================= */
+
+const mapBtn = document.getElementById("mapButton");
+const modal = document.getElementById("mapModal");
+const closeBtn = document.getElementById("closeMap");
+
+/* ✅ FIXED CLICK FOR <a> BUTTON */
+if (mapBtn) {
+  mapBtn.onclick = function(e) {
+    e.preventDefault();   // 🔥 important for <a>
+    e.stopPropagation();  // 🔥 prevents Marzipano blocking
+
+    modal.style.display = "block";
+
+    setTimeout(() => {
+      initMap();
+      map.invalidateSize(); // FIX blank map
+    }, 100);
+  };
+}
+
+/* CLOSE BUTTON */
+if (closeBtn) {
+  closeBtn.onclick = function() {
+    modal.style.display = "none";
+  };
+}
+
+/* CLICK OUTSIDE */
+if (modal) {
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      modal.style.display = "none";
+    }
+  });
+}
+
+/* ESC KEY */
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    modal.style.display = "none";
+  }
+});
+
+})();
+</script>
+
+</body>
+</html>

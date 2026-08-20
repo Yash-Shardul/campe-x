@@ -1,0 +1,1936 @@
+/* ============================================================
+   VIRTUAL TOUR — MODERN UI SKIN
+   Drop-in replacement: all IDs/classes unchanged, logic intact
+   Font: import this in your HTML <head> before this CSS
+   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+   Icons: <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+   ============================================================ */
+
+/* ── CSS TOKENS ── */
+:root {
+  --gold:        #f5a623;
+  --gold-dim:    rgba(245,166,35,0.18);
+  --gold-glow:   rgba(245,166,35,0.35);
+  --glass-bg:    rgba(8, 10, 18, 0.72);
+  --glass-bg-lt: rgba(14, 17, 28, 0.60);
+  --glass-bdr:   rgba(255,255,255,0.08);
+  --glass-bdr-h: rgba(255,255,255,0.16);
+  --text-hi:     rgba(255,255,255,0.92);
+  --text-mid:    rgba(255,255,255,0.55);
+  --text-lo:     rgba(255,255,255,0.28);
+  --accent-blue: rgba(80,160,255,0.55);
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-lg:   18px;
+  --radius-pill: 40px;
+  --blur:        blur(16px) saturate(1.4);
+  --transition:  0.22s cubic-bezier(0.22,1,0.36,1);
+}
+
+/* ── RESET & BASE ── */
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -ms-text-size-adjust: none;
+  -moz-text-size-adjust: none;
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
+  -ms-content-zooming: none;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  font-family: 'DM Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  background-color: #060810;
+  color: #fff;
+}
+
+a, a:hover, a:active, a:visited {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ── PANORAMA CONTAINER ── */
+#pano {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ── TITLE BAR ── */
+#titleBar {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 40px;
+  height: 40px;
+  text-align: center;
+}
+
+.mobile #titleBar { height: 50px; right: 50px; }
+body.fullscreen-enabled #titleBar { right: 80px; }
+body.fullscreen-enabled.mobile #titleBar { right: 100px; }
+body.multiple-scenes #titleBar { left: 40px; }
+body.multiple-scenes.mobile #titleBar { left: 50px; }
+
+#titleBar .sceneName {
+  width: 100%;
+  height: 100%;
+  line-height: 30px;
+  padding: 5px;
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur);
+  border-bottom: 0.5px solid var(--glass-bdr);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-hi);
+  -moz-user-select: text;
+  -webkit-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+.mobile #titleBar .sceneName { line-height: 40px; }
+
+/* ── SHARED TOP-CORNER BUTTON BASE ── */
+#fullscreenToggle,
+#autorotateToggle,
+#sceneListToggle {
+  position: absolute;
+  top: 16px;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur);
+  border: 0.5px solid var(--glass-bdr);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition), transform var(--transition);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+#fullscreenToggle:hover,
+#autorotateToggle:hover,
+#sceneListToggle:hover {
+  background: rgba(255,255,255,0.12);
+  border-color: var(--glass-bdr-h);
+  transform: scale(1.08);
+}
+
+.mobile #fullscreenToggle,
+.mobile #autorotateToggle,
+.mobile #sceneListToggle {
+  width: 46px;
+  height: 46px;
+}
+
+/* ── FULLSCREEN TOGGLE ── */
+#fullscreenToggle {
+  display: none;
+  right: 16px;
+}
+
+body.fullscreen-enabled #fullscreenToggle { display: flex; }
+
+#fullscreenToggle .icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  opacity: 0.85;
+  display: block;
+  flex-shrink: 0;
+  position: static !important;
+  transform: none !important;
+  top: auto !important; left: auto !important;
+}
+
+#fullscreenToggle .icon.on  { display: none; }
+#fullscreenToggle .icon.off { display: block; }
+#fullscreenToggle.enabled .icon.on  { display: block; }
+#fullscreenToggle.enabled .icon.off { display: none; }
+
+/* ── AUTOROTATE TOGGLE ── */
+#autorotateToggle {
+  display: flex;
+  right: 16px;
+}
+
+body.fullscreen-enabled #autorotateToggle { right: 62px; }
+body.fullscreen-enabled.mobile #autorotateToggle { right: 70px; }
+
+#autorotateToggle .icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  opacity: 0.85;
+  display: block;
+  flex-shrink: 0;
+  position: static !important;
+  transform: none !important;
+  top: auto !important; left: auto !important;
+}
+
+#autorotateToggle .icon svg,
+#autorotateToggle .icon svg path,
+#autorotateToggle .icon svg polygon,
+#autorotateToggle .icon svg rect { fill: #ffffff; }
+
+#autorotateToggle .icon.on  { display: none; }
+#autorotateToggle .icon.off { display: block; }
+#autorotateToggle.enabled .icon.on  { display: block; }
+#autorotateToggle.enabled .icon.off { display: none; }
+
+/* ── SCENE LIST TOGGLE ── */
+#sceneListToggle {
+  left: 16px;
+  top: 16px;
+  border-radius: var(--radius-sm);
+}
+
+body.single-scene #sceneList,
+body.single-scene #sceneListToggle { display: none; }
+
+#sceneListToggle .text {
+  display: none; /* icon-only */
+}
+
+#sceneListToggle .icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  opacity: 0.85;
+  display: block;
+  flex-shrink: 0;
+  position: static !important;
+  transform: none !important;
+  top: auto !important; left: auto !important;
+}
+
+#sceneListToggle .icon svg,
+#sceneListToggle .icon svg path,
+#sceneListToggle .icon svg polygon,
+#sceneListToggle .icon svg rect { fill: #ffffff; }
+
+#sceneListToggle .icon.on  { display: none; }
+#sceneListToggle .icon.off { display: block; }
+#sceneListToggle.enabled .icon.on  { display: block; }
+#sceneListToggle.enabled .icon.off { display: none; }
+
+/* ============================================================
+   SCENE LIST PANEL
+   ============================================================ */
+#sceneList {
+  position: absolute;
+  top: 70px;
+  left: 12px;
+  width: 220px;
+  max-height: 80vh;
+  overflow-y: auto;
+
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur);
+  border: 0.5px solid var(--glass-bdr);
+  padding: 10px;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.55);
+
+  /* ANIMATION — keep logic identical */
+  transform: translateX(-110%);
+  opacity: 0;
+  transition:
+    transform 0.4s cubic-bezier(0.22,1,0.36,1),
+    opacity   0.3s ease;
+
+  z-index: 1000;
+}
+
+/* scrollbar */
+#sceneList::-webkit-scrollbar { width: 3px; }
+#sceneList::-webkit-scrollbar-track { background: transparent; }
+#sceneList::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 10px; }
+
+/* OPEN STATE — unchanged class, unchanged behaviour */
+#sceneList.enabled {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+/* panel header label */
+#sceneList::before {
+  content: 'Locations';
+  display: block;
+  font-family: 'Syne', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-lo);
+  padding: 2px 6px 10px;
+}
+
+/* ── SCENE CARDS WRAPPER ── */
+.scenes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ── INDIVIDUAL SCENE CARD ── */
+.scene-card {
+  height: 90px;
+  border-radius: var(--radius-md);
+  background-size: cover;
+  background-position: center;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  border: 0.5px solid var(--glass-bdr);
+  transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
+}
+
+.scene-card:hover {
+  transform: scale(1.03) translateX(3px);
+  border-color: rgba(245,166,35,0.45);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+}
+
+/* gradient overlay — keep after pseudo */
+.scene-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(5,7,15,0.82) 0%, rgba(0,0,0,0.15) 60%, transparent 100%);
+}
+
+/* ACTIVE SCENE */
+.scene-card.current {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px var(--gold-dim), 0 6px 24px rgba(0,0,0,0.5);
+  transform: scale(1.04) translateX(2px);
+}
+
+/* scene title label — enhanced with text shadow for clarity */
+.scene-title {
+  position: absolute;
+  bottom: 9px;
+  left: 11px;
+  color: #ffffff;
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  z-index: 2;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.8), 0 0 8px rgba(0,0,0,0.5);
+}
+
+.scene-card.current .scene-title {
+  color: #f5d090;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.9), 0 0 10px rgba(245,166,35,0.3);
+}
+
+/* ── ACTIVE INDICATOR DOT ── */
+.scene-card.current::before {
+  content: '';
+  position: absolute;
+  top: 9px; right: 9px;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 6px var(--gold);
+  z-index: 3;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.5; transform: scale(0.65); }
+}
+
+/* ============================================================
+   CUSTOM POPUP
+   ============================================================ */
+#customPopup {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 9999;
+}
+
+#popupOverlay {
+  position: absolute;
+  width: 100%; height: 100%;
+  background: rgba(4,6,14,0.78);
+  backdrop-filter: blur(6px);
+}
+
+#popupBox {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  background: rgba(12,15,26,0.95);
+  backdrop-filter: var(--blur);
+  border: 0.5px solid var(--glass-bdr-h);
+  padding: 22px;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.7);
+  text-align: center;
+  width: 80%;
+  max-width: 500px;
+}
+
+#popupTitle {
+  margin-bottom: 14px;
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-align: center;
+  color: var(--text-hi) !important;
+  display: block;
+  z-index: 10000;
+}
+
+#popupImage {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  border: 0.5px solid var(--glass-bdr);
+}
+
+#popupControls {
+  margin-top: 14px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+/* popup buttons inherit from viewControlButton style */
+#popupControls button,
+#popupControls a {
+  flex: 1;
+  padding: 9px 14px;
+  border-radius: var(--radius-pill);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  background: rgba(255,255,255,0.07);
+  border: 0.5px solid var(--glass-bdr-h);
+  color: var(--text-hi);
+  cursor: pointer;
+  transition: background var(--transition), transform var(--transition);
+}
+
+#popupControls button:hover,
+#popupControls a:hover {
+  background: rgba(255,255,255,0.14);
+  transform: scale(1.04);
+}
+
+/* ============================================================
+   VR MODE CONTAINER
+   ============================================================ */
+#vrContainer {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100vh;
+  display: flex;
+  z-index: 1000;
+  cursor: none;
+  background: #000;
+}
+
+#vrContainer * { cursor: none !important; }
+
+#leftView, #rightView {
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  border-right: 1px solid rgba(255,255,255,0.06);
+}
+
+#leftView .hotspot,
+#rightView .hotspot {
+  position: absolute;
+  pointer-events: none;
+}
+
+/* ── VR LENS VIGNETTE ── */
+#leftView::after,
+#rightView::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.55) 100%);
+  z-index: 5;
+}
+
+/* ── RETICLE ── */
+.reticle {
+  position: fixed;
+  top: 50%;
+  width: 36px;
+  height: 36px;
+  transform: translate(-50%,-50%);
+  z-index: 2000;
+  display: none;
+  pointer-events: none;
+}
+
+#reticleLeft  { left: 25%; }
+#reticleRight { left: 74.5%; }
+
+/* crosshair */
+.crosshair {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 14px; height: 14px;
+  transform: translate(-50%,-50%);
+}
+
+.crosshair::before,
+.crosshair::after {
+  content: "";
+  position: absolute;
+  background: rgba(255,255,255,0.9);
+  border-radius: 1px;
+}
+
+.crosshair::before {
+  width: 2px; height: 14px;
+  left: 50%; top: 0;
+  transform: translateX(-50%);
+}
+
+.crosshair::after {
+  height: 2px; width: 14px;
+  top: 50%; left: 0;
+  transform: translateY(-50%);
+}
+
+/* progress ring */
+.progress-ring__circle {
+  fill: transparent;
+  stroke: var(--gold);
+  stroke-width: 2.5;
+  stroke-dasharray: 82;
+  stroke-dashoffset: 82;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  filter: drop-shadow(0 0 4px var(--gold));
+}
+
+.reticle.loading .progress-ring__circle {
+  animation: progressRing 1.8s linear forwards;
+}
+
+@keyframes progressRing {
+  from { stroke-dashoffset: 82; }
+  to   { stroke-dashoffset: 0; }
+}
+
+/* ============================================================
+   LINK HOTSPOT  (navigation arrow)
+   ============================================================ */
+.link-hotspot {
+  width: 60px;
+  height: 60px;
+  margin-left: -30px;
+  margin-top: -30px;
+  opacity: 0.88;
+  /* ⚠️ NO transform or transition on transform — Marzipano JS sets position
+     via element.style.transform; any CSS transition on it causes drift */
+  transition: opacity 0.2s;
+  will-change: auto; /* prevent compositor from creating stacking context */
+}
+
+.no-touch .link-hotspot:hover {
+  opacity: 1;
+  /* strictly no transform here */
+}
+
+.mobile .link-hotspot { width: 70px; height: 70px; }
+
+.link-hotspot-icon {
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  /* Brighter, more vibrant gold glow effect */
+  filter: drop-shadow(0 0 10px var(--gold)) drop-shadow(0 0 20px rgba(245,166,35,0.4)) brightness(1.2) saturate(1.3);
+  transition: filter var(--transition);
+  animation: hotspot-pulse 2.5s ease-in-out infinite;
+}
+
+.no-touch .link-hotspot:hover .link-hotspot-icon {
+  filter: drop-shadow(0 0 16px var(--gold)) drop-shadow(0 0 28px rgba(245,166,35,0.6)) brightness(1.35) saturate(1.4);
+  animation: hotspot-pulse-fast 1s ease-in-out infinite;
+}
+
+/* Subtle pulsing glow animation for link hotspots */
+@keyframes hotspot-pulse {
+  0%, 100% { 
+    filter: drop-shadow(0 0 8px var(--gold)) drop-shadow(0 0 16px rgba(245,166,35,0.3)) brightness(1.15) saturate(1.2);
+  }
+  50% { 
+    filter: drop-shadow(0 0 12px var(--gold)) drop-shadow(0 0 24px rgba(245,166,35,0.5)) brightness(1.25) saturate(1.35);
+  }
+}
+
+@keyframes hotspot-pulse-fast {
+  0%, 100% { 
+    filter: drop-shadow(0 0 14px var(--gold)) drop-shadow(0 0 26px rgba(245,166,35,0.5)) brightness(1.3) saturate(1.35);
+  }
+  50% { 
+    filter: drop-shadow(0 0 18px var(--gold)) drop-shadow(0 0 32px rgba(245,166,35,0.7)) brightness(1.4) saturate(1.5);
+  }
+}
+
+/* tooltip — ALWAYS VISIBLE with enhanced contrast for bright backgrounds */
+.link-hotspot-tooltip {
+  position: absolute;
+  left: 50%;
+  top: -36px;
+  margin-left: 0;
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  max-width: 220px;
+  padding: 6px 13px;
+  border-radius: var(--radius-pill);
+  /* Darker, more opaque background for bright panorama */
+  background: rgba(8,10,18,0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(245,166,35,0.35);
+  color: #f5d090;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  cursor: pointer;
+  /* Always visible */
+  opacity: 1;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.7), 0 0 12px rgba(245,166,35,0.2);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+/* keep pointer-events on hover for fallback mode */
+.no-touch .link-hotspot:hover .link-hotspot-tooltip {
+  pointer-events: all;
+  border-color: rgba(245,166,35,0.6);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.8), 0 0 16px rgba(245,166,35,0.35);
+}
+
+/* tooltip-fallback: still show */
+.tooltip-fallback .link-hotspot-tooltip { display: block; }
+.no-touch .tooltip-fallback .link-hotspot:hover .link-hotspot-tooltip { display: block; }
+
+/* ============================================================
+   INFO HOTSPOT  (location label pin)
+   ============================================================ */
+.info-hotspot {
+  line-height: 1.2em;
+  /* always fully visible — no fade, no delay */
+  opacity: 1 !important;
+}
+
+.no-touch .info-hotspot:hover { opacity: 1 !important; }
+.info-hotspot.visible { opacity: 1 !important; }
+
+/* header = the pill label — enhanced for bright panorama visibility */
+.info-hotspot .info-hotspot-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: auto;
+  height: auto;
+  border-radius: var(--radius-pill);
+  /* Darker background for better contrast on bright backgrounds */
+  background: rgba(8,10,18,0.92);
+  backdrop-filter: blur(14px);
+  border: 0.5px solid rgba(245,166,35,0.5);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.6), 0 0 12px rgba(245,166,35,0.15);
+  cursor: pointer;
+  padding: 7px 13px 7px 9px;
+  transition: background var(--transition), border-color var(--transition), box-shadow var(--transition);
+}
+
+.info-hotspot .info-hotspot-header::before {
+  /* amber beacon dot — brighter */
+  content: '';
+  flex-shrink: 0;
+  width: 8px; 
+  height: 8px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 9px var(--gold), inset 0 0 3px rgba(255,255,255,0.4);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+.no-touch .info-hotspot:hover .info-hotspot-header,
+.info-hotspot.visible .info-hotspot-header {
+  background: rgba(8,10,18,0.95);
+  border-color: var(--gold);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.7), 0 0 16px rgba(245,166,35,0.3);
+}
+
+.mobile .info-hotspot .info-hotspot-header {
+  width: auto;
+  height: auto;
+  border-radius: var(--radius-pill);
+}
+
+/* disable the old hover expansion — keep identical selectors */
+.desktop.no-touch .info-hotspot .info-hotspot-header:hover {
+  width: auto;
+  border-radius: var(--radius-pill);
+}
+
+.desktop .info-hotspot.visible .info-hotspot-header,
+.desktop.no-touch .info-hotspot.visible .info-hotspot-header:hover {
+  width: auto;
+  border-radius: var(--radius-pill);
+}
+
+/* icon wrapper — hidden */
+.info-hotspot .info-hotspot-icon-wrapper { display: none; }
+.mobile .info-hotspot .info-hotspot-icon-wrapper { display: none; }
+
+/* title wrapper */
+.info-hotspot .info-hotspot-title-wrapper {
+  position: relative;
+  left: 0; top: 0;
+  width: auto; height: auto;
+  padding: 0;
+  overflow: visible;
+  transition: none;
+}
+
+.desktop .info-hotspot.visible .info-hotspot-title-wrapper,
+.desktop.no-touch .info-hotspot .info-hotspot-header:hover .info-hotspot-title-wrapper {
+  width: auto;
+  padding: 0;
+}
+
+.info-hotspot .info-hotspot-title-wrapper:before { display: none; }
+
+/* title text — enhanced contrast with shadow for bright panorama backgrounds */
+.info-hotspot .info-hotspot-title {
+  display: inline-block;
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #ffffff;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.8), 0 0 12px rgba(0,0,0,0.6);
+  -moz-user-select: text;
+  -webkit-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+.no-touch .info-hotspot:hover .info-hotspot-title,
+.info-hotspot.visible .info-hotspot-title {
+  color: #f5d090;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.9), 0 0 16px rgba(245,166,35,0.35);
+}
+
+/* hide close & text block on desktop */
+.info-hotspot .info-hotspot-close-wrapper { display: none; }
+.info-hotspot .info-hotspot-text { display: none; }
+
+/* ── MODAL (mobile) — unchanged structure, styled ── */
+.desktop .info-hotspot-modal { display: none; }
+
+.info-hotspot-modal {
+  top: 0; left: 0;
+  position: absolute;
+  width: 100%; height: 100%;
+  overflow: hidden;
+  z-index: 11000 !important;
+  background-color: rgba(4,6,14,0.75);
+  backdrop-filter: blur(6px);
+  line-height: 1.2em;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease-in-out 0.5s, visibility 0s 0.7s;
+}
+
+.info-hotspot-modal.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.info-hotspot-modal .info-hotspot-header {
+  position: absolute;
+  top: 60px; left: 10px; right: 10px;
+  width: auto; height: 50px;
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur);
+  border: 0.5px solid var(--glass-bdr-h);
+  border-radius: var(--radius-md);
+  opacity: 0;
+}
+
+.info-hotspot-modal.visible .info-hotspot-header { opacity: 1; }
+
+.info-hotspot-modal .info-hotspot-title-wrapper {
+  position: absolute;
+  top: 0; left: 50px; right: 50px;
+  width: auto; height: 50px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+}
+
+.info-hotspot-modal .info-hotspot-title {
+  display: inline-block;
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-hi);
+}
+
+.info-hotspot-modal .info-hotspot-close-wrapper {
+  position: absolute;
+  top: 0; right: 0;
+  width: 50px; height: 50px;
+  background: rgba(245,166,35,0.15);
+  border-left: 0.5px solid var(--glass-bdr-h);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition);
+}
+
+.info-hotspot-modal .info-hotspot-close-wrapper:hover {
+  background: rgba(245,166,35,0.28);
+}
+
+.info-hotspot-modal .info-hotspot-text {
+  position: absolute;
+  top: 118px; bottom: 10px;
+  left: 10px; right: 10px;
+  padding: 14px 16px;
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur);
+  border: 0.5px solid var(--glass-bdr);
+  border-radius: var(--radius-md);
+  overflow-y: auto;
+  opacity: 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-mid);
+}
+
+.info-hotspot-modal.visible .info-hotspot-text { opacity: 1; }
+
+/* ============================================================
+   VIEW CONTROL BUTTONS  (bottom nav)
+   ============================================================ */
+.viewControlButton {
+  display: none;
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  /* Same dark glass as top buttons */
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur);
+  border: 0.5px solid var(--glass-bdr);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition), transform var(--transition);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+body.view-control-buttons .viewControlButton {
+  display: flex;
+}
+
+@media (max-width: 600px) {
+  body.view-control-buttons .viewControlButton { display: none; }
+}
+
+.viewControlButton:hover {
+  background: rgba(255,255,255,0.25);
+  border-color: rgba(255,255,255,0.4);
+  transform: scale(1.12);
+}
+
+/* zoom + / - accent on hover */
+.viewControlButton-5:hover,
+.viewControlButton-6:hover {
+  background: var(--gold-dim);
+  border-color: rgba(245,166,35,0.5);
+}
+
+/* Icons are white <img> PNG files inside display:flex <a> containers */
+.viewControlButton .icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  opacity: 0.85;
+  transition: opacity var(--transition);
+  /* flex item — no position, no transform, no margin tricks needed */
+  position: static !important;
+  transform: none !important;
+  display: block;
+  flex-shrink: 0;
+  /* Reset any inherited absolute positioning from vendor/reset.min.css */
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+}
+
+.viewControlButton:hover .icon { opacity: 1; }
+
+/* ── POSITIONS — identical offsets, updated bottom value ── */
+
+.viewControlButton-1 { margin-left: -220px; }
+.viewControlButton-2 { margin-left: -165px; }
+.viewControlButton-3 { margin-left: -115px; }
+.viewControlButton-4 { margin-left: -65px; }
+.viewControlButton-5 { margin-left:   -15px; }
+.viewControlButton-6 { margin-left:  35px; }
+.viewControlButton-7 { margin-left: 85px; }
+.viewControlButton-8 { margin-left: 135px; }
+.viewControlButton-9 { margin-left: 185px; }
+
+/* ── BOTTOM BAR BACKDROP (pill group behind buttons) — enhanced for visibility ── */
+body.view-control-buttons::after {
+  content: '';
+  position: fixed;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 490px;
+  max-width: 94vw;
+  height: 58px;
+  /* Slightly brighter for better contrast and presence */
+  background: rgba(8,10,18,0.78);
+  backdrop-filter: blur(18px);
+  border: 0.5px solid rgba(255,255,255,0.14);
+  border-radius: var(--radius-pill);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 1px rgba(255,255,255,0.05);
+  /* Must be below buttons (z-index:1) */
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ── MUTE / MUSIC BUTTON ── */
+/* The HTML element has a style attribute — all overrides need !important */
+div#bg-music-control,
+#bg-music-control {
+  position: fixed !important;
+  bottom: 18px !important;  /* align with bottom bar */
+  right: 20px !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: var(--glass-bg) !important;
+  backdrop-filter: var(--blur) !important;
+  -webkit-backdrop-filter: var(--blur) !important;
+  border: 0.5px solid var(--glass-bdr) !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: background var(--transition), border-color var(--transition), transform var(--transition) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+  font-size: 18px !important;
+  line-height: 40px !important;
+  text-align: center !important;
+  color: rgba(255,255,255,0.85) !important;
+  z-index: 999 !important;
+  user-select: none !important;
+  font-family: sans-serif !important;
+  box-sizing: border-box !important;
+}
+
+div#bg-music-control:hover,
+#bg-music-control:hover {
+  background: rgba(255,255,255,0.12) !important;
+  border-color: var(--glass-bdr-h) !important;
+  transform: scale(1.08) !important;
+}
+
+/* ── FONT SMOOTHING ── */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================================
+   CAMPUS ROUTE NAVIGATION — Selector Card  (#routeNavCard)
+   ============================================================ */
+/* Outer fixed container — anchors both the pill and the error tooltip */
+#routeNavWrap {
+  position: fixed;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1200;
+  /* width is driven by the pill card inside */
+}
+
+/* The whole card is a single horizontal flex pill row:
+   [ 🗺 Campus Route ] | [ From ▾ ] [ To ▾ ] [ ▶ Start ] | [⌃] */
+#routeNavCard {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 52px;
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur);
+  border: 0.5px solid var(--glass-bdr);
+  border-radius: var(--radius-pill);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  z-index: 1200;
+  overflow: hidden;
+  font-family: 'DM Sans', sans-serif;
+  padding: 0;
+}
+
+/* ── Title section (left segment) ── */
+.rn-card-header {
+  display: flex;
+  align-items: center;
+  padding: 0 16px 0 20px;
+  height: 100%;
+  border-right: 0.5px solid var(--glass-bdr);
+  flex-shrink: 0;
+}
+
+.rn-card-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  white-space: nowrap;
+}
+
+/* ── Body — expandable middle section ── */
+#routeCardBody {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  height: 100%;
+  /* Horizontal collapse animation */
+  transition: max-width 0.35s cubic-bezier(0.22,1,0.36,1),
+              padding  0.35s cubic-bezier(0.22,1,0.36,1),
+              opacity  0.25s ease;
+  max-width: 580px;
+  opacity: 1;
+  overflow: hidden;
+}
+
+#routeCardBody.rn-body--collapsed {
+  max-width: 0;
+  padding-left: 0;
+  padding-right: 0;
+  opacity: 0;
+}
+
+/* ── Toggle button (rightmost, always visible) ── */
+#routeCardToggle {
+  background: none;
+  border: none;
+  border-left: 0.5px solid var(--glass-bdr);
+  color: var(--text-mid);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0 14px;
+  height: 100%;
+  flex-shrink: 0;
+  transition: color var(--transition), background var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#routeCardToggle:hover {
+  color: var(--text-hi);
+  background: rgba(255,255,255,0.06);
+}
+
+/* Icon inside toggle — Tabler icon */
+.rn-toggle-icon {
+  font-size: 18px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.28s cubic-bezier(0.22,1,0.36,1), color var(--transition);
+  color: var(--gold);
+}
+
+/* ── Labels (inline — stacked above select in a column wrapper) ── */
+.rn-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-lo);
+  white-space: nowrap;
+  margin-bottom: 3px;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Wrap each label+select pair in a column */
+.rn-field {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+}
+
+/* ── Selects ── */
+.rn-select {
+  width: 160px;
+  padding: 5px 9px;
+  background: rgba(255,255,255,0.06);
+  border: 0.5px solid var(--glass-bdr-h);
+  border-radius: var(--radius-sm);
+  color: var(--text-hi);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  cursor: pointer;
+  outline: none;
+  -webkit-user-select: text;
+  user-select: text;
+  transition: border-color var(--transition), background var(--transition);
+  height: 32px;
+  /* iOS fix: allow native picker to open */
+  -webkit-touch-callout: default;
+  pointer-events: auto;
+  touch-action: manipulation;
+}
+
+.rn-select option {
+  background: #0d1020;
+  color: #fff;
+}
+
+.rn-select:focus {
+  border-color: var(--gold);
+  background: rgba(245,166,35,0.06);
+}
+
+/* ── Primary button (compact for inline pill bar) ── */
+.rn-btn-primary {
+  width: auto;
+  padding: 0 16px;
+  height: 34px;
+  margin: 0;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, var(--gold) 0%, #e08c00 100%);
+  border: none;
+  border-radius: var(--radius-pill);
+  color: #000;
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity var(--transition), transform var(--transition), box-shadow var(--transition);
+  box-shadow: 0 4px 16px rgba(245,166,35,0.3);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.rn-btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 22px rgba(245,166,35,0.45);
+}
+
+.rn-btn-primary:active {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* ── Error message — appears below the pill inside the flex column wrap ── */
+.rn-error {
+  margin-top: 8px;
+  min-width: 240px;
+  max-width: 400px;
+  font-size: 11px;
+  line-height: 1.4;
+  text-align: center;
+  border-radius: var(--radius-sm);
+  padding: 7px 14px;
+  background: rgba(20,5,5,0.92);
+  border: 0.5px solid rgba(255,70,70,0.4);
+  color: #ff6b6b;
+  white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+  -webkit-user-select: text;
+  user-select: text;
+  pointer-events: none;
+}
+
+/* ============================================================
+   ROUTE PROGRESS PANEL  (#routeProgressPanel)
+   ============================================================ */
+#routeProgressPanel {
+  position: fixed;
+  top: 70px;
+  right: 12px;
+  width: 280px;
+  height: calc(100vh - 140px);
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur);
+  border: 0.5px solid var(--glass-bdr);
+  border-radius: var(--radius-lg);
+  box-shadow: -4px 0 32px rgba(0,0,0,0.55);
+  z-index: 1100;
+  padding: 18px 16px;
+  font-family: 'DM Sans', sans-serif;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  /* Slide-in from right */
+  transform: translateX(calc(100% + 20px));
+  transition: transform 0.35s cubic-bezier(0.22,1,0.36,1);
+}
+
+/* When visible (display:block is replaced by toggling this class or inline display) */
+#routeProgressPanel[style*="display: block"],
+#routeProgressPanel[style*="display:block"] {
+  transform: translateX(0);
+}
+
+/* header row */
+.rpp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 0.5px solid var(--glass-bdr);
+  flex-shrink: 0;
+}
+
+.rpp-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.rpp-clear {
+  background: rgba(255,60,60,0.1);
+  border: 0.5px solid rgba(255,60,60,0.3);
+  border-radius: var(--radius-pill);
+  color: #ff8080;
+  font-size: 10px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 600;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.rpp-clear:hover {
+  background: rgba(255,60,60,0.2);
+  border-color: rgba(255,60,60,0.5);
+}
+
+/* 3-col info grid */
+.rpp-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.rpp-cell {
+  background: rgba(255,255,255,0.04);
+  border: 0.5px solid var(--glass-bdr);
+  border-radius: var(--radius-sm);
+  padding: 7px 8px;
+  text-align: center;
+}
+
+.rpp-cell-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-lo);
+  margin-bottom: 4px;
+}
+
+.rpp-cell-value {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-hi);
+  word-break: break-word;
+  line-height: 1.3;
+}
+
+/* progress bar */
+.rpp-bar-wrap {
+  height: 5px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.rpp-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold) 0%, #f0b030 100%);
+  border-radius: 999px;
+  transition: width 0.5s ease;
+  box-shadow: 0 0 8px rgba(245,166,35,0.45);
+}
+
+.rpp-step-label {
+  font-size: 10px;
+  color: var(--text-mid);
+  text-align: right;
+  margin-bottom: 10px;
+  letter-spacing: 0.04em;
+}
+
+/* chip strip */
+/* ── Vertical chip strip — one location per row ── */
+.rpp-path {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  align-items: stretch;
+  max-height: calc(100vh - 420px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin-top: 4px;
+}
+
+.rpp-path::-webkit-scrollbar { width: 3px; }
+.rpp-path::-webkit-scrollbar-track { background: transparent; }
+.rpp-path::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 4px; }
+
+/* Each stop row */
+.rp-chip {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 9px 12px;
+  border-radius: 0;
+  background: transparent;
+  border: none;
+  border-bottom: 0.5px solid rgba(255,255,255,0.06);
+  color: var(--text-mid);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background var(--transition);
+}
+
+/* step number badge */
+.rp-chip::before {
+  content: attr(data-step);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.07);
+  border: 0.5px solid rgba(255,255,255,0.12);
+  font-size: 9px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  color: var(--text-lo);
+}
+
+.rp-chip--current {
+  background: rgba(245,166,35,0.1);
+  border-bottom-color: rgba(245,166,35,0.2);
+  color: #f5d090;
+  font-weight: 600;
+}
+
+.rp-chip--current::before {
+  background: rgba(245,166,35,0.25);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.rp-chip--done {
+  background: transparent;
+  border-bottom-color: rgba(0,200,100,0.1);
+  color: rgba(0,200,100,0.5);
+}
+
+.rp-chip--done::before {
+  content: '✓';
+  background: rgba(0,200,100,0.12);
+  border-color: rgba(0,200,100,0.3);
+  color: rgba(0,200,100,0.7);
+  font-size: 9px;
+}
+
+/* Connector arrow between chips — points downward */
+.rp-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 0 2px 30px;   /* indent to align with chip text */
+  font-size: 10px;
+  color: rgba(255,255,255,0.15);
+  line-height: 1;
+  border-left: none;
+}
+
+/* arrival message */
+.rpp-arrived {
+  margin-top: 10px;
+  background: rgba(0,230,118,0.1);
+  border: 0.5px solid rgba(0,230,118,0.3);
+  border-radius: var(--radius-sm);
+  color: #00e676;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  padding: 8px 12px;
+  animation: arrivedPulse 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes arrivedPulse {
+  from { box-shadow: 0 0 0 rgba(0,230,118,0); }
+  to   { box-shadow: 0 0 14px rgba(0,230,118,0.25); }
+}
+
+/* ============================================================
+   HOTSPOT HIGHLIGHTING (route guidance)
+   .rn-hotspot-highlight = green glow on next-step hotspot
+   .rn-hotspot-dim        = dimmed non-route hotspots
+   ============================================================ */
+.link-hotspot.rn-hotspot-highlight .link-hotspot-icon {
+  filter:
+    drop-shadow(0 0 8px #00e676)
+    drop-shadow(0 0 18px rgba(0,230,118,0.7))
+    brightness(1.3)
+    saturate(1.2)  !important;
+  animation: route-hotspot-pulse 1.2s ease-in-out infinite !important;
+}
+
+/* Hide the default tooltip for the highlighted hotspot so only the "GO" label shows */
+.link-hotspot.rn-hotspot-highlight .link-hotspot-tooltip {
+  display: none !important;
+}
+@keyframes route-hotspot-pulse {
+  0%, 100% {
+    filter:
+      drop-shadow(0 0 6px #00e676)
+      drop-shadow(0 0 14px rgba(0,230,118,0.55))
+      brightness(1.25) saturate(1.2);
+  }
+  50% {
+    filter:
+      drop-shadow(0 0 14px #00e676)
+      drop-shadow(0 0 26px rgba(0,230,118,0.8))
+      brightness(1.4) saturate(1.4);
+  }
+}
+
+.link-hotspot.rn-hotspot-dim {
+  opacity: 0.35 !important;
+}
+
+/* floating "GO → ..." label on the highlighted hotspot */
+.rn-route-label {
+  position: absolute;
+  top: -42px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-family: 'Syne', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #00e676;
+  background: rgba(0,0,0,0.85);
+  border: 0.5px solid rgba(0,230,118,0.45);
+  border-radius: var(--radius-pill);
+  padding: 4px 10px;
+  pointer-events: none;
+  box-shadow: 0 0 10px rgba(0,230,118,0.25);
+  animation: routeLabelFade 2s ease-in-out infinite alternate;
+}
+
+@keyframes routeLabelFade {
+  from { opacity: 0.8; }
+  to   { opacity: 1; }
+}
+
+/* ============================================================
+   RESPONSIVE — TABLETS & MOBILE
+   Comprehensive layout fixes for all screen sizes
+   Key design decisions for mobile:
+   - Route card sits at very top, compact pill
+   - Scene list toggle (☰) goes bottom-LEFT corner
+   - Autorotate toggle (▶) goes bottom-RIGHT corner
+   - View control buttons shown in a scrollable bottom dock
+   - Progress panel anchored above bottom dock
+   ============================================================ */
+
+/* ── SMALL LAPTOPS / LARGE TABLETS (≤1024px) ── */
+@media (max-width: 1024px) {
+  #routeNavCard {
+    height: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    border-radius: var(--radius-lg);
+  }
+
+  #routeCardBody {
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .rn-select { width: 130px; }
+
+  #routeProgressPanel { width: 250px; }
+
+  body.view-control-buttons::after { width: 420px; }
+
+  .viewControlButton-1 { margin-left: -190px; }
+  .viewControlButton-2 { margin-left: -140px; }
+  .viewControlButton-3 { margin-left: -95px; }
+  .viewControlButton-4 { margin-left: -50px; }
+  .viewControlButton-5 { margin-left: -5px; }
+  .viewControlButton-6 { margin-left: 40px; }
+  .viewControlButton-7 { margin-left: 85px; }
+  .viewControlButton-8 { margin-left: 130px; }
+  .viewControlButton-9 { margin-left: 175px; }
+}
+
+/* ================================================================
+   MOBILE PHONES & TABLETS  (≤768px)
+   ================================================================ */
+@media (max-width: 768px) {
+
+  /* ── 1. ROUTE NAV — full-width compact pill at top ── */
+  #routeNavWrap {
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    width: auto;          /* let left+right anchor it */
+    transform: none;
+    z-index: 1200;
+  }
+
+  #routeNavCard {
+    width: 100%;
+    height: auto;
+    min-height: 44px;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    border-radius: 12px;
+    overflow: visible;    /* allow body to expand downward */
+  }
+
+  /* The header portion (🗺 Campus Route label) */
+  .rn-card-header {
+    padding: 0 10px 0 14px;
+    flex-shrink: 0;
+  }
+
+  /* Body expands downward on mobile (vertical stack) */
+  #routeCardBody {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 0 12px 12px;
+    max-width: none;
+    width: 100%;
+    order: 3;             /* ensures body row wraps BELOW the header+toggle row */
+    /* Override the horizontal collapse animation with a height-based one */
+    max-height: 260px;
+    overflow: hidden;
+    transition: max-height 0.35s cubic-bezier(0.22,1,0.36,1),
+                padding   0.35s cubic-bezier(0.22,1,0.36,1),
+                opacity   0.25s ease;
+    opacity: 1;
+    border-top: 0.5px solid var(--glass-bdr);
+    padding-top: 10px;
+  }
+
+  #routeCardBody.rn-body--collapsed {
+    max-width: none;   /* clear the desktop collapsed value */
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    opacity: 0;
+    overflow: hidden;
+    border-top: none;
+  }
+
+  /* Card wraps: header+toggle in row, then body below */
+  #routeNavCard {
+    flex-wrap: wrap;   /* allow body to wrap below header+toggle */
+    overflow: visible; /* must stay visible so expanded body is not clipped */
+    background: var(--glass-bg);
+    backdrop-filter: var(--blur);
+    border: 0.5px solid var(--glass-bdr);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  }
+
+  /* Header must have a fixed order so it stays on top row */
+  .rn-card-header { order: 1; flex: 1; }
+  #routeCardToggle { order: 2; }
+
+  .rn-select { width: 100%; }
+  .rn-field  { width: 100%; }
+
+  .rn-btn-primary {
+    width: 100%;
+    justify-content: center;
+    padding: 10px 16px;
+    height: 38px;
+  }
+
+  /* ── 2. SCENE LIST TOGGLE — move to bottom-LEFT corner ── */
+  #sceneListToggle {
+    position: fixed;
+    bottom: 76px;      /* above bottom dock */
+    left: 12px;
+    top: auto;
+    right: auto;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    z-index: 1100;
+  }
+
+  /* Scene list panel: anchored from bottom-left */
+  #sceneList {
+    position: fixed;
+    top: auto;
+    bottom: 124px;     /* above the toggle button */
+    left: 12px;
+    width: 190px;
+    max-height: 55vh;
+    border-radius: 14px;
+    z-index: 1050;
+  }
+
+  .scene-card { height: 76px; }
+
+  /* ── 3. AUTOROTATE TOGGLE — move to bottom-RIGHT corner ── */
+  #autorotateToggle {
+    position: fixed;
+    bottom: 76px;      /* above bottom dock */
+    right: 12px;
+    top: auto;
+    left: auto;
+    width: 40px;
+    height: 40px;
+    z-index: 1100;
+  }
+
+  /* Fullscreen toggle — also move to bottom-right area when enabled */
+  #fullscreenToggle {
+    position: fixed;
+    bottom: 76px;
+    right: 60px;
+    top: auto;
+    left: auto;
+    width: 40px;
+    height: 40px;
+    z-index: 1100;
+  }
+
+  /* ── 4. BOTTOM DOCK — horizontal scrollable row of control buttons ── */
+  /*   Override hide-on-mobile: show them in a new layout               */
+  body.view-control-buttons .viewControlButton {
+    display: flex;
+    position: fixed;
+    bottom: 16px;
+    left: auto;
+    margin-left: 0;    /* clear desktop margin-left offsets */
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+  }
+
+  /* Bottom bar backdrop: now a full-width scrollable-area indicator */
+  body.view-control-buttons::after {
+    width: calc(100% - 16px);
+    left: 8px;
+    transform: none;
+    bottom: 8px;
+    height: 56px;
+    border-radius: 14px;
+  }
+
+  /* Lay out buttons in a centered row — evenly spaced 8 buttons
+     We have buttons 1–9 but skip button order for zoom (5,6) last */
+  /* Order: Guide(7), Map(8), VR(9), Up(1), Down(2), Left(3), Right(4), ZoomIn(5), ZoomOut(6) */
+  /* Use a custom dock approach: center them via left % positions */
+
+  .viewControlButton-1  { left: calc(50% - 176px); }
+  .viewControlButton-2  { left: calc(50% - 128px); }
+  .viewControlButton-3  { left: calc(50% - 80px);  }
+  .viewControlButton-4  { left: calc(50% - 32px);  }
+  .viewControlButton-5  { left: calc(50% + 16px);  }
+  .viewControlButton-6  { left: calc(50% + 64px);  }
+  .viewControlButton-7  { left: calc(50% + 112px); }
+  .viewControlButton-8  { left: calc(50% + 160px); }
+  .viewControlButton-9  { left: calc(50% + 208px); }
+
+  /* If the row overflows the screen on very narrow devices,
+     buttons beyond screen edge are still tappable via horizontal overflow */
+
+  /* ── 5. ROUTE PROGRESS PANEL — floats above dock ── */
+  #routeProgressPanel {
+    position: fixed;
+    width: calc(100% - 24px);
+    left: 12px;
+    right: 12px;
+    top: auto;
+    bottom: 76px;      /* sits above the dock */
+    height: auto;
+    max-height: 45vh;
+    border-radius: 14px;
+    z-index: 1050;
+    transform: translateY(calc(100% + 20px)); /* slide from bottom */
+    transition: transform 0.35s cubic-bezier(0.22,1,0.36,1);
+  }
+
+  #routeProgressPanel[style*="display: block"],
+  #routeProgressPanel[style*="display:block"] {
+    transform: translateY(0);
+  }
+
+  /* ── 6. MUSIC BUTTON ── */
+  div#bg-music-control,
+  #bg-music-control {
+    bottom: 76px !important;
+    right: 60px !important;
+    width: 40px !important;
+    height: 40px !important;
+    font-size: 17px !important;
+    border-radius: 10px !important;
+  }
+
+  /* ── 7. GUIDE POPUP ── */
+  #guidePopup {
+    top: auto;
+    bottom: 140px;
+    left: 12px;
+    right: 12px;
+    max-width: none;
+    font-size: 13px;
+  }
+
+  /* ── 8. MAP MODAL ── */
+  #mapModal > div {
+    width: 95%;
+    height: 82%;
+    margin: 4% auto;
+  }
+
+  /* ── 9. TITLE BAR ── */
+  #titleBar { height: 36px; }
+
+  /* ── 10. POPUP BOX ── */
+  #popupBox { width: 92%; padding: 16px; }
+  #popupImage { height: 200px; }
+}
+
+/* ================================================================
+   SMALL PHONES  (≤480px)
+   ================================================================ */
+@media (max-width: 480px) {
+  /* Route card title: shorter */
+  .rn-card-title {
+    font-size: 10px;
+    letter-spacing: 0.07em;
+  }
+
+  .rn-card-header { padding: 0 8px 0 12px; }
+
+  #routeCardToggle {
+    padding: 0 10px;
+    min-width: 36px;
+  }
+
+  .rn-toggle-icon { font-size: 16px; }
+
+  /* Bottom dock buttons: slightly smaller */
+  body.view-control-buttons .viewControlButton {
+    width: 36px;
+    height: 36px;
+  }
+
+  /* Tighten dock spacing on small phones */
+  .viewControlButton-1  { left: calc(50% - 160px); }
+  .viewControlButton-2  { left: calc(50% - 116px); }
+  .viewControlButton-3  { left: calc(50% - 72px);  }
+  .viewControlButton-4  { left: calc(50% - 28px);  }
+  .viewControlButton-5  { left: calc(50% + 16px);  }
+  .viewControlButton-6  { left: calc(50% + 60px);  }
+  .viewControlButton-7  { left: calc(50% + 104px); }
+  .viewControlButton-8  { left: calc(50% + 148px); }
+  .viewControlButton-9  { left: calc(50% + 192px); }
+
+  /* Scene list: slightly narrower */
+  #sceneList {
+    width: 170px;
+    bottom: 120px;
+  }
+
+  .scene-card { height: 68px; }
+  .scene-title { font-size: 11px; }
+
+  /* Progress panel */
+  #routeProgressPanel {
+    bottom: 72px;
+    max-height: 42vh;
+    padding: 14px 12px;
+  }
+
+  .rpp-grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* Music control */
+  div#bg-music-control,
+  #bg-music-control {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 15px !important;
+  }
+
+  /* Popup */
+  #popupBox { width: 96%; padding: 14px; }
+  #popupImage { height: 170px; }
+  #popupControls { flex-direction: column; gap: 8px; }
+
+  /* Map modal */
+  #mapModal > div {
+    width: 98%;
+    height: 86%;
+    margin: 2% auto;
+    padding: 8px;
+  }
+
+  #mapModal > div > div:first-child button {
+    padding: 5px 8px;
+    font-size: 11px;
+    margin-right: 4px;
+    margin-bottom: 4px;
+  }
+}
+
+/* ================================================================
+   VERY SMALL PHONES  (≤380px)
+   ================================================================ */
+@media (max-width: 380px) {
+  /* Route card: show icon only, hide text label */
+  .rn-card-title {
+    display: none;
+  }
+
+  .rn-card-header {
+    padding: 0 6px;
+    border-right: none;
+  }
+
+  #routeNavCard { min-height: 42px; }
+
+  #routeNavWrap { left: 6px; right: 6px; }
+
+  /* Scene list toggle: slightly inward */
+  #sceneListToggle { left: 8px; bottom: 70px; width: 36px; height: 36px; }
+  #autorotateToggle { right: 8px; bottom: 70px; width: 36px; height: 36px; }
+
+  /* Bottom dock: very tight */
+  body.view-control-buttons .viewControlButton {
+    width: 34px;
+    height: 34px;
+    bottom: 12px;
+  }
+
+  .viewControlButton-1  { left: calc(50% - 152px); }
+  .viewControlButton-2  { left: calc(50% - 110px); }
+  .viewControlButton-3  { left: calc(50% - 68px);  }
+  .viewControlButton-4  { left: calc(50% - 26px);  }
+  .viewControlButton-5  { left: calc(50% + 16px);  }
+  .viewControlButton-6  { left: calc(50% + 58px);  }
+  .viewControlButton-7  { left: calc(50% + 100px); }
+  .viewControlButton-8  { left: calc(50% + 142px); }
+  .viewControlButton-9  { left: calc(50% + 184px); }
+
+  #routeProgressPanel { max-height: 38vh; }
+}
+
