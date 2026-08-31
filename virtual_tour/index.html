@@ -10,11 +10,110 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 
 </head>
-<body class="multiple-scenes view-control-buttons">
+<body class="multiple-scenes view-control-buttons splash-active">
+
+<!-- ========================================== -->
+<!-- SPLASH SCREEN START                        -->
+<!-- ========================================== -->
+<div id="splashScreen" class="splash-screen" role="status" aria-label="Loading Campex Virtual Tour" aria-live="polite">
+  <div class="ambient-glow" aria-hidden="true"></div>
+
+  <div class="circle-container" aria-hidden="true">
+    <div class="bezel-ring"></div>
+
+    <svg class="circle-svg" viewBox="0 0 200 200">
+      <circle class="circle-bg" cx="100" cy="100" r="98" />
+      <circle class="circle-glow" cx="100" cy="100" r="98" />
+      <circle class="circle-progress" cx="100" cy="100" r="98" />
+    </svg>
+
+    <div class="marker-wrap">
+      <div class="marker-dot"></div>
+    </div>
+
+    <div class="circle-content">
+      <span class="branding-eyebrow">360°</span>
+      <h1 class="branding-title">Campex</h1>
+    </div>
+  </div>
+
+  <p class="branding-slogan">Welcome to Campex Virtual Tour</p>
+
+  <p class="status-line" aria-hidden="true">
+    Preparing campus tour<span class="status-dot">.</span><span class="status-dot">.</span><span class="status-dot">.</span>
+  </p>
+</div>
+
+<script>
+  (function () {
+    const splashScreen = document.getElementById('splashScreen');
+    if (!splashScreen) return;
+
+    let dismissed = false;
+    const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reducedMotion) {
+      splashScreen.style.display = 'none';
+      document.body.classList.remove('splash-active');
+      return;
+    }
+
+    const ANIM_MIN_DURATION = 1400; // Optimal duration for smooth 360 trace without stall
+    const startTime = Date.now();
+    let tourLoaded = window.campexTourReady || false;
+    let windowLoaded = (document.readyState === 'complete');
+
+    function hideSplash() {
+      if (dismissed) return;
+      dismissed = true;
+
+      splashScreen.classList.add('fade-out');
+      splashScreen.setAttribute('aria-hidden', 'true');
+
+      setTimeout(function () {
+        splashScreen.style.display = 'none';
+        document.body.classList.remove('splash-active');
+      }, 800);
+    }
+
+    function checkDismiss() {
+      // Only close when tour has loaded its initial scene and assets
+      if (!tourLoaded) return;
+      const elapsedTime = Date.now() - startTime;
+      const remainingTime = Math.max(0, ANIM_MIN_DURATION - elapsedTime);
+      setTimeout(hideSplash, remainingTime);
+    }
+
+    window.campexOnTourReady = function () {
+      tourLoaded = true;
+      checkDismiss();
+    };
+
+    window.addEventListener('load', function () {
+      windowLoaded = true;
+      if (tourLoaded) checkDismiss();
+    });
+
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(function () {
+        if (tourLoaded) checkDismiss();
+      }).catch(function () {
+        if (tourLoaded) checkDismiss();
+      });
+    }
+
+    // Safety fallback: dismiss after 5.5s maximum even under severe network stalls
+    setTimeout(hideSplash, 5500);
+  })();
+</script>
+<!-- ========================================== -->
+<!-- SPLASH SCREEN END                          -->
+<!-- ========================================== -->
 
 <!-- NORMAL VIEW -->
 <div id="pano"></div>
