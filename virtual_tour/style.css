@@ -144,9 +144,9 @@ body.multiple-scenes.mobile #titleBar { left: 50px; }
   transform: scale(1.08);
 }
 
-.mobile #fullscreenToggle,
-.mobile #autorotateToggle,
-.mobile #sceneListToggle {
+:where(.mobile) #fullscreenToggle,
+:where(.mobile) #autorotateToggle,
+:where(.mobile) #sceneListToggle {
   width: 46px;
   height: 46px;
 }
@@ -182,8 +182,8 @@ body.fullscreen-enabled #fullscreenToggle { display: flex; }
   right: 16px;
 }
 
-body.fullscreen-enabled #autorotateToggle { right: 62px; }
-body.fullscreen-enabled.mobile #autorotateToggle { right: 70px; }
+:where(body.fullscreen-enabled) #autorotateToggle { right: 62px; }
+:where(body.fullscreen-enabled.mobile) #autorotateToggle { right: 70px; }
 
 #autorotateToggle .icon {
   width: 20px;
@@ -1010,6 +1010,8 @@ body {
 /* Outer fixed container — anchors both the pill and the error tooltip */
 #routeNavWrap {
   position: fixed;
+  width: max-content;
+  max-width: calc(100% - 24px);
   top: 14px;
   left: 50%;
   transform: translateX(-50%);
@@ -1534,35 +1536,83 @@ body {
 
 /* ============================================================
    RESPONSIVE — TABLETS & MOBILE
-   Comprehensive layout fixes for all screen sizes
-   Key design decisions for mobile:
-   - Route card sits at very top, compact pill
-   - Scene list toggle (☰) goes bottom-LEFT corner
-   - Autorotate toggle (▶) goes bottom-RIGHT corner
-   - View control buttons shown in a scrollable bottom dock
-   - Progress panel anchored above bottom dock
+   Updated mobile-safe version
+   - No manual pixel offsets that push icons off-screen
+   - Existing HTML structure preserved
+   - Control buttons distributed relative to viewport width
+   - Floating controls no longer overlap
+   - Route card and panels stay inside viewport
    ============================================================ */
 
-/* ── SMALL LAPTOPS / LARGE TABLETS (≤1024px) ── */
+/* ------------------------------------------------------------
+   GLOBAL RESPONSIVE SAFETY
+   ------------------------------------------------------------ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+img,
+video,
+canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+svg,
+button svg,
+.viewControlButton svg,
+.viewControlButton i {
+  flex-shrink: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  max-width: 100%;
+}
+
+/* Prevent accidental horizontal page overflow caused by fixed UI */
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* ============================================================
+   SMALL LAPTOPS / LARGE TABLETS (≤1024px)
+   ============================================================ */
 @media (max-width: 1024px) {
   #routeNavCard {
-    height: auto;
+    height: 68px;
     flex-direction: row;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     border-radius: var(--radius-lg);
   }
 
   #routeCardBody {
     gap: 8px;
     padding: 10px 12px;
+    min-width: 0;
   }
 
-  .rn-select { width: 130px; }
+  .rn-select {
+    width: 130px;
+    max-width: 100%;
+  }
 
-  #routeProgressPanel { width: 250px; }
+  #routeProgressPanel {
+    width: 250px;
+    max-width: calc(100vw - 24px);
+  }
 
-  body.view-control-buttons::after { width: 420px; }
+  body.view-control-buttons::after {
+    width: min(420px, calc(100% - 16px));
+  }
 
+  /* Keep desktop/tablet offsets only at this size */
   .viewControlButton-1 { margin-left: -190px; }
   .viewControlButton-2 { margin-left: -140px; }
   .viewControlButton-3 { margin-left: -95px; }
@@ -1574,59 +1624,83 @@ body {
   .viewControlButton-9 { margin-left: 175px; }
 }
 
-/* ================================================================
-   MOBILE PHONES & TABLETS  (≤768px)
-   ================================================================ */
-@media (max-width: 768px) {
+/* ============================================================
+   MOBILE PHONES & TABLETS (≤768px)
+   ============================================================ */
+@media (max-width: 768px), (max-height: 500px) {
 
-  /* ── 1. ROUTE NAV — full-width compact pill at top ── */
+  /* ----------------------------------------------------------
+     1. ROUTE NAV
+     ---------------------------------------------------------- */
   #routeNavWrap {
     top: 8px;
     left: 8px;
     right: 8px;
-    width: auto;          /* let left+right anchor it */
+    width: auto;
+    max-width: none;
     transform: none;
     z-index: 1200;
   }
 
   #routeNavCard {
     width: 100%;
+    max-width: 100%;
     height: auto;
     min-height: 44px;
     flex-direction: row;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
+    overflow: visible;
+    background: var(--glass-bg);
+    backdrop-filter: var(--blur);
+    border: 0.5px solid var(--glass-bdr);
     border-radius: 12px;
-    overflow: visible;    /* allow body to expand downward */
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
   }
 
-  /* The header portion (🗺 Campus Route label) */
   .rn-card-header {
+    order: 1;
+    height: 44px;
+    flex: 1 1 auto;
+    min-width: 0;
     padding: 0 10px 0 14px;
-    flex-shrink: 0;
   }
 
-  /* Body expands downward on mobile (vertical stack) */
+  .rn-card-title {
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  #routeCardToggle {
+    order: 2;
+    height: 44px;
+    flex: 0 0 auto;
+  }
+
   #routeCardBody {
+    order: 3;
+    height: auto;
+    flex: 0 0 100%;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    max-height: 260px;
     flex-direction: column;
     align-items: stretch;
     gap: 8px;
-    padding: 0 12px 12px;
-    max-width: none;
-    width: 100%;
-    order: 3;             /* ensures body row wraps BELOW the header+toggle row */
-    /* Override the horizontal collapse animation with a height-based one */
-    max-height: 260px;
+    padding: 10px 12px 12px;
     overflow: hidden;
-    transition: max-height 0.35s cubic-bezier(0.22,1,0.36,1),
-                padding   0.35s cubic-bezier(0.22,1,0.36,1),
-                opacity   0.25s ease;
     opacity: 1;
     border-top: 0.5px solid var(--glass-bdr);
-    padding-top: 10px;
+    transition:
+      max-height 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+      padding 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.25s ease;
   }
 
   #routeCardBody.rn-body--collapsed {
-    max-width: none;   /* clear the desktop collapsed value */
+    max-width: none;
     max-height: 0;
     padding-top: 0;
     padding-bottom: 0;
@@ -1635,137 +1709,210 @@ body {
     border-top: none;
   }
 
-  /* Card wraps: header+toggle in row, then body below */
-  #routeNavCard {
-    flex-wrap: wrap;   /* allow body to wrap below header+toggle */
-    overflow: visible; /* must stay visible so expanded body is not clipped */
-    background: var(--glass-bg);
-    backdrop-filter: var(--blur);
-    border: 0.5px solid var(--glass-bdr);
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  .rn-field,
+  .rn-select {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
   }
-
-  /* Header must have a fixed order so it stays on top row */
-  .rn-card-header { order: 1; flex: 1; }
-  #routeCardToggle { order: 2; }
-
-  .rn-select { width: 100%; }
-  .rn-field  { width: 100%; }
 
   .rn-btn-primary {
     width: 100%;
-    justify-content: center;
-    padding: 10px 16px;
     height: 38px;
+    padding: 10px 16px;
+    justify-content: center;
   }
 
-  /* ── 2. SCENE LIST TOGGLE — move to bottom-LEFT corner ── */
+  /* ----------------------------------------------------------
+     2. SCENE LIST TOGGLE + PANEL
+     ---------------------------------------------------------- */
   #sceneListToggle {
     position: fixed;
-    bottom: 76px;      /* above bottom dock */
     left: 12px;
-    top: auto;
     right: auto;
+    top: auto;
+    bottom: 76px;
     width: 40px;
     height: 40px;
+    min-width: 40px;
+    min-height: 40px;
     border-radius: 10px;
     z-index: 1100;
   }
 
-  /* Scene list panel: anchored from bottom-left */
   #sceneList {
     position: fixed;
-    top: auto;
-    bottom: 124px;     /* above the toggle button */
     left: 12px;
-    width: 190px;
+    right: auto;
+    top: auto;
+    bottom: 124px;
+    width: min(190px, calc(100vw - 24px));
     max-height: 55vh;
     border-radius: 14px;
     z-index: 1050;
+    overflow-y: auto;
   }
 
-  .scene-card { height: 76px; }
-
-  /* ── 3. AUTOROTATE TOGGLE — move to bottom-RIGHT corner ── */
-  #autorotateToggle {
-    position: fixed;
-    bottom: 76px;      /* above bottom dock */
-    right: 12px;
-    top: auto;
-    left: auto;
-    width: 40px;
-    height: 40px;
-    z-index: 1100;
+  .scene-card {
+    height: 76px;
   }
 
-  /* Fullscreen toggle — also move to bottom-right area when enabled */
+  /* ----------------------------------------------------------
+     3. FLOATING RIGHT-SIDE CONTROLS
+     ---------------------------------------------------------- */
+  #autorotateToggle,
   #fullscreenToggle {
     position: fixed;
-    bottom: 76px;
-    right: 60px;
     top: auto;
     left: auto;
+    bottom: 76px;
     width: 40px;
     height: 40px;
+    min-width: 40px;
+    min-height: 40px;
     z-index: 1100;
   }
 
-  /* ── 4. BOTTOM DOCK — horizontal scrollable row of control buttons ── */
-  /*   Override hide-on-mobile: show them in a new layout               */
+  #autorotateToggle {
+    right: 12px;
+  }
+
+  #fullscreenToggle {
+    right: 60px;
+  }
+
+  /* Music gets its own slot instead of overlapping fullscreen */
+  div#bg-music-control,
+  #bg-music-control {
+    position: fixed !important;
+    left: auto !important;
+    top: auto !important;
+    right: 108px !important;
+    bottom: 76px !important;
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+    font-size: 17px !important;
+    border-radius: 10px !important;
+    z-index: 1100 !important;
+  }
+
+  /* ----------------------------------------------------------
+     4. BOTTOM VIEW CONTROL DOCK
+     Existing HTML is preserved. Buttons are positioned as a
+     percentage of the viewport so none are pushed off-screen.
+     ---------------------------------------------------------- */
   body.view-control-buttons .viewControlButton {
     display: flex;
     position: fixed;
     bottom: 16px;
-    left: auto;
-    margin-left: 0;    /* clear desktop margin-left offsets */
-    width: 40px;
-    height: 40px;
+    margin-left: 0 !important;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+    align-items: center;
+    justify-content: center;
     border-radius: 10px;
+    transform: translateX(-50%);
+    z-index: 1100;
   }
 
-  /* Bottom bar backdrop: now a full-width scrollable-area indicator */
+  body.view-control-buttons .viewControlButton svg {
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    min-height: 18px;
+  }
+
   body.view-control-buttons::after {
     width: calc(100% - 16px);
+    max-width: none;
     left: 8px;
+    right: 8px;
     transform: none;
     bottom: 8px;
-    height: 56px;
+    height: 52px;
     border-radius: 14px;
   }
 
-  /* Lay out buttons in a centered row — evenly spaced 8 buttons
-     We have buttons 1–9 but skip button order for zoom (5,6) last */
-  /* Order: Guide(7), Map(8), VR(9), Up(1), Down(2), Left(3), Right(4), ZoomIn(5), ZoomOut(6) */
-  /* Use a custom dock approach: center them via left % positions */
+  /* Nine safe viewport-relative positions */
+  .viewControlButton-1 { left: 6%; }
+  .viewControlButton-2 { left: 17%; }
+  .viewControlButton-3 { left: 28%; }
+  .viewControlButton-4 { left: 39%; }
+  .viewControlButton-5 { left: 50%; }
+  .viewControlButton-6 { left: 61%; }
+  .viewControlButton-7 { left: 72%; }
+  .viewControlButton-8 { left: 83%; }
+  .viewControlButton-9 { left: 94%; }
 
-  .viewControlButton-1  { left: calc(50% - 176px); }
-  .viewControlButton-2  { left: calc(50% - 128px); }
-  .viewControlButton-3  { left: calc(50% - 80px);  }
-  .viewControlButton-4  { left: calc(50% - 32px);  }
-  .viewControlButton-5  { left: calc(50% + 16px);  }
-  .viewControlButton-6  { left: calc(50% + 64px);  }
-  .viewControlButton-7  { left: calc(50% + 112px); }
-  .viewControlButton-8  { left: calc(50% + 160px); }
-  .viewControlButton-9  { left: calc(50% + 208px); }
-
-  /* If the row overflows the screen on very narrow devices,
-     buttons beyond screen edge are still tappable via horizontal overflow */
-
-  /* ── 5. ROUTE PROGRESS PANEL — floats above dock ── */
+  /* ----------------------------------------------------------
+     5. ROUTE PROGRESS PANEL
+     ---------------------------------------------------------- */
   #routeProgressPanel {
     position: fixed;
-    width: calc(100% - 24px);
     left: 12px;
     right: 12px;
     top: auto;
-    bottom: 76px;      /* sits above the dock */
+    bottom: 124px;
+    width: auto;
+    max-width: none;
     height: auto;
-    max-height: 45vh;
+    max-height: min(50vh, calc(100vh - 190px));
+    max-height: min(50dvh, calc(100dvh - 190px));
+    padding: 0 12px 12px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
     border-radius: 14px;
     z-index: 1050;
-    transform: translateY(calc(100% + 20px)); /* slide from bottom */
-    transition: transform 0.35s cubic-bezier(0.22,1,0.36,1);
+    transform: translateY(calc(100% + 20px));
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* One scroll area keeps long routes readable on short screens. */
+  #routeProgressPanel .rpp-header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: #0d1020;
+    gap: 8px;
+    margin-bottom: 10px;
+    padding: 8px 0;
+  }
+
+  #routeProgressPanel .rpp-clear {
+    min-height: 36px;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  #routeProgressPanel .rpp-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  #routeProgressPanel .rpp-cell:last-child {
+    grid-column: 1 / -1;
+  }
+
+  #routeProgressPanel .rpp-cell {
+    min-width: 0;
+    text-align: left;
+  }
+
+  #routeProgressPanel .rpp-path {
+    max-height: none;
+    overflow: visible;
+  }
+
+  #routeProgressPanel .rp-chip {
+    flex-shrink: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.4;
+    padding: 8px;
   }
 
   #routeProgressPanel[style*="display: block"],
@@ -1773,118 +1920,183 @@ body {
     transform: translateY(0);
   }
 
-  /* ── 6. MUSIC BUTTON ── */
-  div#bg-music-control,
-  #bg-music-control {
-    bottom: 76px !important;
-    right: 60px !important;
-    width: 40px !important;
-    height: 40px !important;
-    font-size: 17px !important;
-    border-radius: 10px !important;
-  }
-
-  /* ── 7. GUIDE POPUP ── */
+  /* ----------------------------------------------------------
+     6. GUIDE POPUP
+     ---------------------------------------------------------- */
   #guidePopup {
-    top: auto;
+    /* Override the existing inline desktop geometry. */
+    top: auto !important;
     bottom: 140px;
     left: 12px;
-    right: 12px;
-    max-width: none;
-    font-size: 13px;
+    right: 12px !important;
+    width: auto;
+    max-width: none !important;
+    max-height: calc(100vh - 170px);
+    overflow-y: auto;
+    font-size: 13px !important;
   }
 
-  /* ── 8. MAP MODAL ── */
+  /* ----------------------------------------------------------
+     7. MAP MODAL
+     ---------------------------------------------------------- */
   #mapModal > div {
-    width: 95%;
-    height: 82%;
-    margin: 4% auto;
+    /* These dimensions are also declared inline in the map markup. */
+    width: 95% !important;
+    max-width: 95%;
+    height: 82% !important;
+    max-height: 82vh;
+    margin: 4% auto !important;
+    overflow: auto;
   }
 
-  /* ── 9. TITLE BAR ── */
-  #titleBar { height: 36px; }
+  /* ----------------------------------------------------------
+     8. TITLE BAR
+     ---------------------------------------------------------- */
+  #titleBar {
+    height: 36px;
+  }
 
-  /* ── 10. POPUP BOX ── */
-  #popupBox { width: 92%; padding: 16px; }
-  #popupImage { height: 200px; }
+  /* ----------------------------------------------------------
+     9. POPUP BOX
+     ---------------------------------------------------------- */
+  #popupBox {
+    width: calc(100% - 24px);
+    max-width: calc(100% - 24px);
+    padding: 16px;
+  }
+
+  #popupImage {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+  }
 }
 
-/* ================================================================
-   SMALL PHONES  (≤480px)
-   ================================================================ */
+/* ============================================================
+   SMALL PHONES (≤480px)
+   ============================================================ */
 @media (max-width: 480px) {
-  /* Route card title: shorter */
   .rn-card-title {
+    display: block;
     font-size: 10px;
     letter-spacing: 0.07em;
   }
 
-  .rn-card-header { padding: 0 8px 0 12px; }
+  .rn-card-header {
+    padding: 0 8px 0 12px;
+  }
 
   #routeCardToggle {
     padding: 0 10px;
     min-width: 36px;
   }
 
-  .rn-toggle-icon { font-size: 16px; }
-
-  /* Bottom dock buttons: slightly smaller */
-  body.view-control-buttons .viewControlButton {
-    width: 36px;
-    height: 36px;
+  .rn-toggle-icon {
+    font-size: 16px;
   }
 
-  /* Tighten dock spacing on small phones */
-  .viewControlButton-1  { left: calc(50% - 160px); }
-  .viewControlButton-2  { left: calc(50% - 116px); }
-  .viewControlButton-3  { left: calc(50% - 72px);  }
-  .viewControlButton-4  { left: calc(50% - 28px);  }
-  .viewControlButton-5  { left: calc(50% + 16px);  }
-  .viewControlButton-6  { left: calc(50% + 60px);  }
-  .viewControlButton-7  { left: calc(50% + 104px); }
-  .viewControlButton-8  { left: calc(50% + 148px); }
-  .viewControlButton-9  { left: calc(50% + 192px); }
+  /* Smaller buttons make all nine fit even on narrow phones */
+  body.view-control-buttons .viewControlButton {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    min-height: 30px;
+    bottom: 17px;
+    border-radius: 8px;
+  }
 
-  /* Scene list: slightly narrower */
+  body.view-control-buttons .viewControlButton svg {
+    width: 15px;
+    height: 15px;
+    min-width: 15px;
+    min-height: 15px;
+  }
+
+  body.view-control-buttons::after {
+    height: 50px;
+  }
+
   #sceneList {
-    width: 170px;
+    width: min(170px, calc(100vw - 24px));
     bottom: 120px;
   }
 
-  .scene-card { height: 68px; }
-  .scene-title { font-size: 11px; }
-
-  /* Progress panel */
-  #routeProgressPanel {
-    bottom: 72px;
-    max-height: 42vh;
-    padding: 14px 12px;
+  .scene-card {
+    height: 68px;
   }
 
-  .rpp-grid { grid-template-columns: repeat(2, 1fr); }
+  .scene-title {
+    font-size: 11px;
+  }
 
-  /* Music control */
+  #routeProgressPanel {
+    padding: 0 12px 12px;
+  }
+
+  .rpp-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #sceneListToggle,
+  #autorotateToggle,
+  #fullscreenToggle {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+  }
+
+  #sceneListToggle {
+    left: 8px;
+    bottom: 70px;
+  }
+
+  #autorotateToggle {
+    right: 8px;
+    bottom: 70px;
+  }
+
+  #fullscreenToggle {
+    right: 52px;
+    bottom: 70px;
+  }
+
   div#bg-music-control,
   #bg-music-control {
+    right: 96px !important;
+    bottom: 70px !important;
     width: 36px !important;
     height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
     font-size: 15px !important;
   }
 
-  /* Popup */
-  #popupBox { width: 96%; padding: 14px; }
-  #popupImage { height: 170px; }
-  #popupControls { flex-direction: column; gap: 8px; }
-
-  /* Map modal */
-  #mapModal > div {
-    width: 98%;
-    height: 86%;
-    margin: 2% auto;
-    padding: 8px;
+  #popupBox {
+    width: calc(100% - 16px);
+    max-width: calc(100% - 16px);
+    padding: 14px;
   }
 
-  #mapModal > div > div:first-child button {
+  #popupImage {
+    height: 170px;
+  }
+
+  #popupControls {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  #mapModal > div {
+    width: 98% !important;
+    max-width: 98%;
+    height: 86% !important;
+    max-height: 86vh;
+    margin: 2% auto !important;
+    padding: 8px !important;
+  }
+
+  #mapModal > div > div:not(#map) button {
     padding: 5px 8px;
     font-size: 11px;
     margin-right: 4px;
@@ -1892,46 +2104,129 @@ body {
   }
 }
 
-/* ================================================================
-   VERY SMALL PHONES  (≤380px)
-   ================================================================ */
+/* ============================================================
+   VERY SMALL PHONES (≤380px)
+   ============================================================ */
 @media (max-width: 380px) {
-  /* Route card: show icon only, hide text label */
+  /* Keep the title visible; truncate instead of hiding it */
   .rn-card-title {
-    display: none;
+    display: block;
+    max-width: 120px;
+    font-size: 8px;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .rn-card-header {
+    min-width: 0;
     padding: 0 6px;
     border-right: none;
   }
 
-  #routeNavCard { min-height: 42px; }
-
-  #routeNavWrap { left: 6px; right: 6px; }
-
-  /* Scene list toggle: slightly inward */
-  #sceneListToggle { left: 8px; bottom: 70px; width: 36px; height: 36px; }
-  #autorotateToggle { right: 8px; bottom: 70px; width: 36px; height: 36px; }
-
-  /* Bottom dock: very tight */
-  body.view-control-buttons .viewControlButton {
-    width: 34px;
-    height: 34px;
-    bottom: 12px;
+  #routeNavCard {
+    min-height: 42px;
   }
 
-  .viewControlButton-1  { left: calc(50% - 152px); }
-  .viewControlButton-2  { left: calc(50% - 110px); }
-  .viewControlButton-3  { left: calc(50% - 68px);  }
-  .viewControlButton-4  { left: calc(50% - 26px);  }
-  .viewControlButton-5  { left: calc(50% + 16px);  }
-  .viewControlButton-6  { left: calc(50% + 58px);  }
-  .viewControlButton-7  { left: calc(50% + 100px); }
-  .viewControlButton-8  { left: calc(50% + 142px); }
-  .viewControlButton-9  { left: calc(50% + 184px); }
+  #routeNavWrap {
+    left: 6px;
+    right: 6px;
+  }
 
-  #routeProgressPanel { max-height: 38vh; }
+  /* Fit all nine controls inside 320–380px screens */
+  body.view-control-buttons .viewControlButton {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    min-height: 28px;
+    bottom: 18px;
+    border-radius: 7px;
+  }
+
+  body.view-control-buttons .viewControlButton svg {
+    width: 14px;
+    height: 14px;
+    min-width: 14px;
+    min-height: 14px;
+  }
+
+  body.view-control-buttons::after {
+    left: 5px;
+    right: 5px;
+    width: calc(100% - 10px);
+    height: 48px;
+  }
+
+  #sceneListToggle {
+    left: 6px;
+    bottom: 68px;
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    min-height: 34px;
+  }
+
+  #autorotateToggle {
+    right: 6px;
+    bottom: 68px;
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    min-height: 34px;
+  }
+
+  #fullscreenToggle {
+    right: 46px;
+    bottom: 68px;
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    min-height: 34px;
+  }
+
+  div#bg-music-control,
+  #bg-music-control {
+    right: 86px !important;
+    bottom: 68px !important;
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    min-height: 34px !important;
+  }
+
+  #routeProgressPanel {
+    left: 8px;
+    right: 8px;
+  }
+
+  #guidePopup {
+    left: 8px;
+    right: 8px !important;
+    bottom: 124px;
+  }
+
+  .rpp-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================
+   SHORT MOBILE SCREENS / LANDSCAPE PHONES
+   ============================================================ */
+@media (max-width: 768px) and (max-height: 520px), (max-height: 500px) {
+  #routeCardBody {
+    max-height: 180px;
+    overflow-y: auto;
+  }
+
+  #sceneList {
+    max-height: 45vh;
+  }
+
+  #guidePopup {
+    max-height: 55vh;
+  }
 }
 
 /* ============================================================
@@ -2184,4 +2479,85 @@ body.splash-active {
   .splash-screen { display: none !important; }
 }
 
+.rn-mobile-picker, .rpp-details-toggle { display: none; }
 
+@media (max-width: 768px), (max-height: 500px) {
+  #routeCardBody {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: visible;
+  }
+  #routeCardBody.rn-body--collapsed { visibility: hidden; }
+  #startTourBtn { grid-column: 1 / -1; }
+  .rn-field { position: relative; justify-content: start; }
+  .rn-field > .rn-select { display: none; }
+  .rn-mobile-picker { display: block; min-width: 0; }
+  .rn-mobile-picker summary {
+    padding: 10px 8px;
+    min-height: 40px;
+    border: 1px solid var(--glass-bdr-h);
+    border-radius: 8px;
+    background: #151a29;
+    color: var(--text-hi);
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .rn-mobile-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    max-height: min(150px, 24vh);
+    max-height: min(150px, 24dvh);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border: 1px solid var(--glass-bdr-h);
+    border-radius: 8px;
+    background: #151a29;
+    box-shadow: 0 6px 16px #0008;
+  }
+  .rn-mobile-options button {
+    display: block;
+    width: 100%;
+    min-height: 40px;
+    padding: 8px;
+    text-align: left;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--glass-bdr);
+    color: var(--text-hi);
+    font: inherit;
+    font-size: 12px;
+    overflow-wrap: anywhere;
+    cursor: pointer;
+  }
+  .rn-mobile-options button:is(:hover, :focus-visible) { background: #343b50; }
+  #routeProgressPanel { max-height: min(150px, 30dvh); }
+  #routeProgressPanel .rpp-header { padding: 4px 0; margin-bottom: 4px; }
+  #routeProgressPanel .rpp-title { font-size: 10px; margin-right: auto; }
+  .rpp-details-toggle {
+    display: block;
+    min-height: 36px;
+    padding: 4px 6px;
+    background: transparent;
+    border: 1px solid var(--glass-bdr-h);
+    border-radius: 8px;
+    color: var(--gold);
+    font-size: 11px;
+    cursor: pointer;
+  }
+  #routeProgressPanel:not(.rpp-expanded) .rpp-cell:not(:nth-child(2)),
+  #routeProgressPanel:not(.rpp-expanded) .rpp-path { display: none; }
+  #routeProgressPanel:not(.rpp-expanded) .rpp-grid { display: block; margin-bottom: 6px; }
+  #routeProgressPanel:not(.rpp-expanded) .rpp-cell { padding: 4px 8px; }
+  #routeProgressPanel .rpp-step-label { margin-bottom: 0; }
+  #routeProgressPanel.rpp-expanded { max-height: min(35dvh, calc(100dvh - 190px)); }
+  /* Editing a route should not stack two panels over the panorama. */
+  #routeNavWrap:has(#routeCardBody:not(.rn-body--collapsed)) ~ #routeProgressPanel {
+    visibility: hidden;
+  }
+}

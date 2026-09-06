@@ -42,9 +42,15 @@ var APP_DATA = {
       ],
       "infoHotspots": [
         {
-          "yaw": -0.7125945878362465,
-          "pitch": 0.07583627213157484,
+          "yaw": 0.7008097684783952,
+          "pitch": 0.05781007840657537,
           "title": "Main Gate",
+          "text": "Text"
+        },
+         {
+          "yaw":-0.846266508281655,
+          "pitch": -0.02366264324440337,
+          "title": "Girls Parking Area",
           "text": "Text"
         }
       ],
@@ -95,7 +101,8 @@ var APP_DATA = {
           "title":"Main Gate"
         }
       ],
-      "infoHotspots": []
+      "infoHotspots": [
+      ]
     },
     {
       "id": "79-gate-a-3",
@@ -201,7 +208,12 @@ var APP_DATA = {
           "title":"B Building"
         }
       ],
-      "infoHotspots": []
+      "infoHotspots": [{
+          "yaw":  1.5046093825685274,
+          "pitch": -0.002028952030233455,
+          "title": "Way to Girls Hostel",
+          "text": "Text"
+    }]
     },
     {
       "id": "81-foursquare-entrance",
@@ -1527,7 +1539,8 @@ var APP_DATA = {
           "yaw": 0.061968461326440405,
           "pitch": 0.17754018444966846,
           "rotation": 0,
-          "target": "31-a-building-1-floor-entrance"
+          "target": "31-a-building-1-floor-entrance",
+          "title": "First floor"
         }
       ],
       "infoHotspots": [
@@ -2226,7 +2239,14 @@ var APP_DATA = {
           "target": "41-c-g3"
         }
       ],
-      "infoHotspots": [],
+      "infoHotspots": [
+        {
+           "yaw": 0.183601702233112,
+          "pitch": 0.2541393495644275,
+          "title": "Badminton court",
+          "text": "Text"
+        }
+      ],
       
       "audio": "audio/c-building.mp3",
       "guideText": "Next, we visit Building C, which is a vibrant mix of multiple engineering branches.The Civil Engineering Department occupies the lower floors, featuring specialized labs like the Surveying Lab, Concrete Technology Lab, and Geotechnical Engineering Lab.The Information Technology and Artificial Intelligence & Data Science Departments focus on digital innovation and research in emerging technologies.The Instrumentation & Control, Electronics and Telecommunication, and Electrical Engineering Departments are also located here, with well-equipped labs for circuit design, automation, and embedded systems.The Seminar Hall in this building hosts guest lectures, technical talks, and cultural programs throughout the year.To the left of the entrance of Building C, you’ll find the Gymkhana, which includes both indoor and outdoor sports facilities for students."
@@ -2345,7 +2365,7 @@ var APP_DATA = {
           "yaw": 0.6345273809785024,
           "pitch": 0.2524530226961481,
           "rotation": 0,
-          "target": "33-c-building-g--c"
+          "target": "33-c-building-g--c",
         }
       ],
       "infoHotspots": [
@@ -2354,7 +2374,7 @@ var APP_DATA = {
           "pitch": 0.02280211337627769,
           "title": "GymKhana",
           "text": "<br>"
-        }
+        },
       ],
       
       "audio": "audio/c-building.mp3",
