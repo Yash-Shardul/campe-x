@@ -98,16 +98,16 @@
     }
   });
 
-  // Create scenes.
-  var scenes = data.scenes.map(function(data) {
+  // Helper to create a single Marzipano scene
+  function createSceneObject(sceneData) {
     var urlPrefix = "tiles";
     var source = Marzipano.ImageUrlSource.fromString(
-      urlPrefix + "/" + data.id + "/{z}/{f}/{y}/{x}.jpg",
-      { cubeMapPreviewUrl: urlPrefix + "/" + data.id + "/preview.jpg" });
-    var geometry = new Marzipano.CubeGeometry(data.levels);
+      urlPrefix + "/" + sceneData.id + "/{z}/{f}/{y}/{x}.jpg",
+      { cubeMapPreviewUrl: urlPrefix + "/" + sceneData.id + "/preview.jpg" });
+    var geometry = new Marzipano.CubeGeometry(sceneData.levels);
 
-    var limiter = Marzipano.RectilinearView.limit.traditional(data.faceSize, 100*Math.PI/180, 120*Math.PI/180);
-    var view = new Marzipano.RectilinearView(data.initialViewParameters, limiter);
+    var limiter = Marzipano.RectilinearView.limit.traditional(sceneData.faceSize, 100*Math.PI/180, 120*Math.PI/180);
+    var view = new Marzipano.RectilinearView(sceneData.initialViewParameters, limiter);
 
     var scene = viewer.createScene({
       source: source,
@@ -117,23 +117,65 @@
     });
 
     // Create link hotspots.
-    data.linkHotspots.forEach(function(hotspot) {
+    sceneData.linkHotspots.forEach(function(hotspot) {
       var element = createLinkHotspotElement(hotspot);
       scene.hotspotContainer().createHotspot(element, { yaw: hotspot.yaw, pitch: hotspot.pitch });
     });
 
     // Create info hotspots.
-    data.infoHotspots.forEach(function(hotspot) {
+    sceneData.infoHotspots.forEach(function(hotspot) {
       var element = createInfoHotspotElement(hotspot);
       scene.hotspotContainer().createHotspot(element, { yaw: hotspot.yaw, pitch: hotspot.pitch });
     });
 
     return {
-      data: data,
+      data: sceneData,
       scene: scene,
       view: view
     };
-  });
+  }
+
+  // Create initial scene immediately for zero main-thread blocking during splash
+  var scenes = [createSceneObject(data.scenes[0])];
+  var nextSceneIndex = 1;
+
+  // Background loader: progressively load remaining scenes during idle frames
+  function loadRemainingScenesBatch() {
+    var batchSize = 6;
+    var count = 0;
+    while (nextSceneIndex < data.scenes.length && count < batchSize) {
+      // Check if already created on demand
+      var alreadyLoaded = false;
+      for (var s = 0; s < scenes.length; s++) {
+        if (scenes[s].data.id === data.scenes[nextSceneIndex].id) {
+          alreadyLoaded = true;
+          break;
+        }
+      }
+      if (!alreadyLoaded) {
+        scenes.push(createSceneObject(data.scenes[nextSceneIndex]));
+      }
+      nextSceneIndex++;
+      count++;
+    }
+
+    if (nextSceneIndex < data.scenes.length) {
+      if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(loadRemainingScenesBatch, { timeout: 1000 });
+      } else {
+        setTimeout(loadRemainingScenesBatch, 32);
+      }
+    }
+  }
+
+  // Schedule background scene loading after the splash screen is smoothly running
+  setTimeout(function() {
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(loadRemainingScenesBatch, { timeout: 1000 });
+    } else {
+      setTimeout(loadRemainingScenesBatch, 40);
+    }
+  }, 120);
 
   // Set up autorotate, if enabled.
   var autorotate = Marzipano.autorotate({
@@ -531,6 +573,14 @@
         return scenes[i];
       }
     }
+    // On-demand creation if clicked before background batch loads it
+    for (var j = 0; j < data.scenes.length; j++) {
+      if (data.scenes[j].id === id) {
+        var created = createSceneObject(data.scenes[j]);
+        scenes.push(created);
+        return created;
+      }
+    }
     return null;
   }
 
@@ -545,6 +595,12 @@
 
   // Display the initial scene.
   switchScene(scenes[0]);
+
+  // Signal that campus tour is ready
+  window.campexTourReady = true;
+  if (typeof window.campexOnTourReady === 'function') {
+    window.campexOnTourReady();
+  }
 
   // ── Expose public API for routeNavigation.js ──────────────────────────
   window.campexSwitchScene = function (sceneId) {
@@ -683,7 +739,7 @@ function exitVRCompletely() {
   // 🔥 PRELOAD SCENE (INSTANT - NO TRANSITION)
   if (typeof switchScene === "function" && currentSceneId) {
 
-    const targetScene = scenes.find(s => s.data.id === currentSceneId);
+    const targetScene = findSceneById(currentSceneId);
 
     if (targetScene) {
       pano.style.display = "none";

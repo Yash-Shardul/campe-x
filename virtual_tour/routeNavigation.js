@@ -82,6 +82,60 @@
     console.log('[RouteNav] Dropdowns populated with', locs.length, 'locations');
   }
 
+  // Bounded mobile pickers avoid platform select menus covering the tour.
+  function initMobileRouteUI() {
+    ['startSelect', 'destSelect'].forEach(function (id) {
+      var select = document.getElementById(id);
+      var picker = document.createElement('details');
+      picker.className = 'rn-mobile-picker';
+      var summary = document.createElement('summary');
+      var list = document.createElement('div');
+      list.className = 'rn-mobile-options';
+      function sync() {
+        summary.textContent = select.options[select.selectedIndex].textContent;
+        summary.setAttribute('aria-label', (id === 'startSelect' ? 'Starting point: ' : 'Destination: ') + summary.textContent);
+      }
+      Array.prototype.forEach.call(select.options, function (option) {
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = option.textContent;
+        button.addEventListener('click', function () {
+          select.value = option.value;
+          select.dispatchEvent(new Event('change', { bubbles: true }));
+          picker.open = false;
+          summary.focus();
+        });
+        list.appendChild(button);
+      });
+      picker.appendChild(summary);
+      picker.appendChild(list);
+      select.after(picker);
+      select.addEventListener('change', sync);
+      picker.addEventListener('toggle', function () {
+        sync();
+        if (picker.open) document.querySelectorAll('.rn-mobile-picker').forEach(function (other) {
+          if (other !== picker) other.open = false;
+        });
+      });
+      picker.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') { picker.open = false; summary.focus(); }
+      });
+      sync();
+    });
+    var panel = document.getElementById('routeProgressPanel');
+    var toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.className = 'rpp-details-toggle';
+    toggle.textContent = 'Details';
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.addEventListener('click', function () {
+      var expanded = panel.classList.toggle('rpp-expanded');
+      toggle.setAttribute('aria-expanded', String(expanded));
+      toggle.textContent = expanded ? 'Less' : 'Details';
+    });
+    panel.querySelector('.rpp-header').insertBefore(toggle, document.getElementById('clearRouteBtn'));
+  }
+
   /* ──────────────────────────────────────────────────────────
    *  CARD COLLAPSE TOGGLE
    *  NOTE: stopPropagation is called in bubble phase ONLY on the
@@ -315,6 +369,8 @@
     var destSel  = document.getElementById('destSelect');
     if (startSel) startSel.value = '';
     if (destSel)  destSel.value  = '';
+    if (startSel) startSel.dispatchEvent(new Event('change'));
+    if (destSel) destSel.dispatchEvent(new Event('change'));
 
     console.log('[RouteNav] Route cleared');
   }
@@ -323,6 +379,7 @@
    *  CARD HELPERS
    * ────────────────────────────────────────────────────────── */
   function collapseCard() {
+    document.querySelectorAll('.rn-mobile-picker').forEach(function (picker) { picker.open = false; });
     var body = document.getElementById('routeCardBody');
     var btn  = document.getElementById('routeCardToggle');
     if (body) body.classList.add('rn-body--collapsed');
@@ -352,6 +409,9 @@
   function showProgressPanel() {
     var panel = document.getElementById('routeProgressPanel');
     if (!panel) return;
+    panel.classList.remove('rpp-expanded');
+    var toggle = panel.querySelector('.rpp-details-toggle');
+    if (toggle) { toggle.textContent = 'Details'; toggle.setAttribute('aria-expanded', 'false'); }
     panel.style.display = 'block';
   }
 
@@ -500,6 +560,7 @@
     }
 
     populateDropdowns();
+    initMobileRouteUI();
     initCardToggle();
 
     // ── Start Tour button ─────────────────────────────────
